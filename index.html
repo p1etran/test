@@ -1,192 +1,196 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mobile Valentine's Surprise 💖</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Good Morning, My Love ☀️</title>
     <style>
         :root {
-            --safe-area: env(safe-area-inset-top);
+            --night-color: #1a3657;
+            --day-color: #fff3e0;
         }
 
         body {
-            background: #ffecf1;
-            height: 100vh;
             margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            transition: background 15s linear;
+            background: var(--night-color);
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .container {
+            position: relative;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            touch-action: none;
-            overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             padding: 20px;
         }
 
-        h1 {
-            color: #ff3b6e;
-            font-size: 2.5rem;
-            text-align: center;
-            margin-bottom: 2rem;
-            line-height: 1.3;
-            padding: 0 15px;
-        }
-
-        .game-area {
-            position: relative;
-            width: 100%;
-            height: 60vh;
-            border: 3px dashed #ff3b6e;
-            border-radius: 20px;
-            overflow: hidden;
-        }
-
-        #targetButton {
-            position: absolute;
-            padding: 20px 40px;
-            font-size: 1.5rem;
-            background: #ff3b6e;
-            color: white;
-            border: none;
-            border-radius: 30px;
-            transition: all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
-            touch-action: none;
-            box-shadow: 0 10px 30px rgba(255,59,110,0.3);
-        }
-
-        #yesButton {
-            position: fixed;
-            bottom: 30px;
-            padding: 20px 50px;
-            font-size: 1.8rem;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 30px;
-            box-shadow: 0 10px 30px rgba(76,175,80,0.3);
-        }
-
-        .touch-effect {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            background: rgba(255,59,110,0.3);
+        .sun {
+            width: 80px;
+            height: 80px;
+            background: #ffdd00;
             border-radius: 50%;
-            animation: ripple 0.6s ease-out;
+            position: absolute;
+            bottom: -40px;
+            box-shadow: 0 0 40px #ffdd0080;
+            transition: all 15s linear;
+        }
+
+        .message {
+            text-align: center;
+            color: white;
+            opacity: 0;
+            transition: opacity 5s;
+            z-index: 2;
+        }
+
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transition: opacity 10s;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+        }
+
+        button {
+            margin-top: 2rem;
+            padding: 1.2rem 2.5rem;
+            font-size: 1.4rem;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 2s ease;
+            box-shadow: 0 5px 15px rgba(255,107,107,0.3);
+        }
+
+        .birds {
+            position: absolute;
+            width: 100%;
+            height: 100%;
             pointer-events: none;
         }
 
-        @keyframes ripple {
-            from { transform: scale(0); opacity: 1; }
-            to { transform: scale(2); opacity: 0; }
+        .bird {
+            position: absolute;
+            font-size: 1.8rem;
+            opacity: 0;
+            animation: fly 15s linear forwards;
+        }
+
+        @keyframes fly {
+            0% { transform: translateX(-100vw) translateY(30vh); opacity: 1; }
+            100% { transform: translateX(100vw) translateY(-10vh); opacity: 0.5; }
         }
     </style>
 </head>
 <body>
-    <h1>Catch the Heart to Be My Valentine! 💘</h1>
-    <div class="game-area">
-        <button id="targetButton" ontouchstart="handleCatch()">No 🙅♀️</button>
+    <div class="container">
+        <div class="stars" id="stars"></div>
+        <div class="sun" id="sun"></div>
+        <div class="birds" id="birds"></div>
+        <div class="message" id="message">
+            <h1>Good Morning, Sunshine! ☀️</h1>
+            <p>As this new day begins...</p>
+            <p>There's something special I want to ask you</p>
+        </div>
+        <button id="askButton" onclick="revealQuestion()">Tap to Start Our Day 🌸</button>
     </div>
-    <button id="yesButton" onclick="showSuccess()">I'll Catch You! 😍</button>
 
     <script>
-        const gameArea = document.querySelector('.game-area');
-        const targetButton = document.getElementById('targetButton');
-        let isMoving = false;
-
-        // Track finger position
-        gameArea.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            const touch = e.touches[0];
-            const rect = gameArea.getBoundingClientRect();
-            
-            // Create ripple effect
-            const ripple = document.createElement('div');
-            ripple.className = 'touch-effect';
-            ripple.style.left = (touch.clientX - rect.left - 25) + 'px';
-            ripple.style.top = (touch.clientY - rect.top - 25) + 'px';
-            gameArea.appendChild(ripple);
-            setTimeout(() => ripple.remove(), 600);
-
-            // Calculate distance between finger and button
-            const buttonRect = targetButton.getBoundingClientRect();
-            const distance = Math.hypot(
-                touch.clientX - (buttonRect.left + buttonRect.width/2),
-                touch.clientY - (buttonRect.top + buttonRect.height/2)
-            );
-
-            // Move button if finger is close
-            if (distance < 150 && !isMoving) {
-                isMoving = true;
-                moveButtonAway(touch.clientX, touch.clientY);
-                setTimeout(() => isMoving = false, 500);
+        function createStars() {
+            const stars = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 10 + 's';
+                stars.appendChild(star);
             }
-        }, { passive: false });
-
-        function moveButtonAway(fingerX, fingerY) {
-            const gameRect = gameArea.getBoundingClientRect();
-            const buttonRect = targetButton.getBoundingClientRect();
-            
-            // Calculate escape direction
-            const angle = Math.atan2(
-                buttonRect.top + buttonRect.height/2 - fingerY,
-                buttonRect.left + buttonRect.width/2 - fingerX
-            );
-
-            // New position calculations
-            const newX = Math.max(0, Math.min(
-                gameRect.width - buttonRect.width,
-                buttonRect.left - gameRect.left + Math.cos(angle) * 100
-            ));
-
-            const newY = Math.max(0, Math.min(
-                gameRect.height - buttonRect.height,
-                buttonRect.top - gameRect.top + Math.sin(angle) * 100
-            ));
-
-            // Apply movement with smooth animation
-            targetButton.style.transform = `translate(${newX}px, ${newY}px)`;
         }
 
-        function handleCatch() {
-            // Add temporary vibration if supported
-            if (navigator.vibrate) navigator.vibrate(50);
+        function startSunrise() {
+            document.body.style.background = "linear-gradient(to bottom, #ff9966, #ff5e62)";
+            document.getElementById('sun').style.transform = "translateY(-120vh)";
+            document.getElementById('stars').style.opacity = 0;
             
-            // Quick escape movement
-            targetButton.style.transform += `scale(0.9)`;
+            // Add flying birds
+            const birds = ['🕊️', '🐦', '🐤'];
+            const birdContainer = document.getElementById('birds');
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const bird = document.createElement('div');
+                    bird.className = 'bird';
+                    bird.innerHTML = birds[Math.floor(Math.random() * birds.length)];
+                    bird.style.top = Math.random() * 50 + 20 + '%';
+                    bird.style.animationDuration = 8 + Math.random() * 7 + 's';
+                    birdContainer.appendChild(bird);
+                }, i * 3000);
+            }
+
+            // Reveal message
             setTimeout(() => {
-                targetButton.style.transform = targetButton.style.transform.replace('scale(0.9)', '');
-            }, 200);
+                document.getElementById('message').style.opacity = 1;
+            }, 5000);
+
+            // Show final button
+            setTimeout(() => {
+                document.getElementById('askButton').style.opacity = 1;
+                document.getElementById('askButton').style.transform = 'translateY(0)';
+                document.getElementById('askButton').innerHTML = "Will You Be My Valentine? 💌";
+            }, 15000);
         }
 
-        function showSuccess() {
+        function revealQuestion() {
             document.body.innerHTML = `
-                <h1 style="animation: heartBeat 1s infinite">
-                    🎉 You Caught My Heart! 💖<br>
-                    Let's Make This Valentine's<br>
-                    Unforgettable! 😘
-                </h1>
-                <div class="hearts"></div>
+                <div style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#fff3e0; padding:20px; text-align:center">
+                    <h1 style="color:#ff6b6b; font-size:2.5rem; margin-bottom:2rem">🌹 You Make Every Morning Brighter 🌹</h1>
+                    <div style="display:flex; gap:1rem; flex-wrap:wrap; justify-content:center">
+                        <button onclick="accept()" style="padding:1.5rem 3rem; font-size:1.5rem; background:#ff6b6b; color:white; border:none; border-radius:30px; cursor:pointer">
+                            YES! 😍
+                        </button>
+                        <button onclick="window.location.reload()" style="padding:1.5rem 3rem; font-size:1.5rem; background:#e0e0e0; color:#666; border:none; border-radius:30px; cursor:pointer">
+                            Let Me Sleep On It 😴
+                        </button>
+                    </div>
+                    <div style="margin-top:3rem; font-size:1.2rem; color:#666">
+                        (P.S. The "No" button just restarts the sunrise 😉)
+                    </div>
+                </div>
             `;
-            
-            // Create floating hearts
-            setInterval(() => {
-                const heart = document.createElement('div');
-                heart.style.cssText = `
-                    position: fixed;
-                    font-size: 2rem;
-                    left: ${Math.random() * 100}vw;
-                    animation: float 3s ease-out forwards;
-                `;
-                heart.innerHTML = Math.random() > 0.5 ? '💖' : '💘';
-                document.body.appendChild(heart);
-                setTimeout(() => heart.remove(), 3000);
-            }, 300);
         }
 
-        // Initialize button position
+        function accept() {
+            document.body.innerHTML = `
+                <div style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#fff3e0; padding:20px; text-align:center; animation: pulse 2s infinite">
+                    <h1 style="color:#ff6b6b; font-size:3rem; margin-bottom:2rem">🎉 Best Morning Ever! 💖</h1>
+                    <p style="font-size:1.5rem; color:#666">Can't wait to celebrate with you!<br>Your smile is my sunrise 🌄</p>
+                    <div style="font-size:4rem; margin-top:2rem">😘❤️🌹</div>
+                </div>
+            `;
+        }
+
+        // Initialize
         window.onload = () => {
-            targetButton.style.transform = `translate(${gameArea.offsetWidth/2 - targetButton.offsetWidth/2}px, 
-                                                     ${gameArea.offsetHeight/2 - targetButton.offsetHeight/2}px)`;
+            createStars();
+            setTimeout(() => {
+                document.getElementById('askButton').style.opacity = 1;
+                document.getElementById('askButton').style.transform = 'translateY(0)';
+            }, 1000);
         };
     </script>
 </body>
