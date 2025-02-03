@@ -1,68 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Keep the same head section as before -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Valentine's Sunrise 🌅</title>
     <style>
-        /* Add this new CSS rule */
-        .button-container {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-top: 2rem;
-            width: 100%;
-            max-width: 400px;
-            padding: 0 20px;
+        :root {
+            --night: #1a3657;
+            --sunrise: linear-gradient(to bottom, #ff9966, #ff5e62);
+            --day: #fff3e0;
         }
 
-        /* Update existing button styles */
-        .choice-button {
-            padding: 1.5rem 3rem !important;
-            font-size: 1.4rem !important;
-            border-radius: 30px !important;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-            border: none;
-            flex: 1;
-            min-width: 160px;
+        /* Critical CSS First */
+        body {
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            background: var(--night); /* Fallback */
+            background: #1a3657; /* Explicit color */
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            transition: background 20s linear;
         }
 
-        .choice-button:active {
-            transform: scale(0.95);
-        }
+        /* Rest of your CSS */
+        .container { /* ... */ }
+        #sun { /* ... */ }
+        /* ... other styles ... */
     </style>
 </head>
 <body>
-    <!-- Previous container remains the same -->
+    <!-- Add Loading State -->
+    <div id="loading" style="color:white; text-align:center; padding:20px">
+        Loading our special sunrise...
+    </div>
+
+    <div class="container">
+        <!-- Your existing content -->
+    </div>
 
     <script>
-        function startSunrise() {
-            // Previous animation code remains the same
-
-            setTimeout(() => {
-                document.body.innerHTML = `
-                    <div class="container" style="background:var(--day)">
-                        <h1 style="color:#ff6b6b; font-size:2rem; margin-bottom:2rem; padding:0 20px; text-align:center">
-                            🌹 Will You Be My Valentine? 💌
-                        </h1>
-                        <div class="button-container">
-                            <button class="choice-button" 
-                                style="background:#ff6b6b; color:white; box-shadow:0 5px 15px rgba(255,107,107,0.3)"
-                                onclick="accept()">
-                                YES! 😍
-                            </button>
-                            <button class="choice-button"
-                                style="background:#ffffff; color:#ff6b6b; border:2px solid #ff6b6b; box-shadow:0 5px 15px rgba(0,0,0,0.1)"
-                                onclick="restartAnimation()">
-                                Try to Escape 😜
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }, 20000);
+        // Debugging Setup
+        console.log('Initializing...');
+        
+        // Add Error Boundary
+        try {
+            // Your existing JavaScript code
+        } catch (error) {
+            console.error('Critical Error:', error);
+            document.body.innerHTML = `
+                <div style="color:white; padding:20px; text-align:center">
+                    Something went wrong 😢<br>
+                    Please refresh or check back later 💖
+                </div>
+            `;
         }
-
-        // Rest of the JavaScript remains the same
+        
+        // Remove Loading State
+        document.getElementById('loading').remove();
     </script>
 </body>
 </html>
