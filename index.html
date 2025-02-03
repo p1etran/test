@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Valentine's Question ❤️</title>
+    <style>
+        body {
+            background-color: #ffebf0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Comic Sans MS', cursive;
+        }
+
+        h1 {
+            color: #ff3b6e;
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .buttons {
+            position: relative;
+            display: flex;
+            gap: 20px;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        #yesButton {
+            background-color: #ff3b6e;
+            color: white;
+        }
+
+        #noButton {
+            background-color: #e0e0e0;
+            color: #333;
+            position: absolute;
+            transition: all 0.5s ease;
+        }
+
+        .hearts {
+            position: fixed;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .heart {
+            position: absolute;
+            color: #ff3b6e;
+            animation: float 3s linear forwards;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Hey Beautiful! 🌹<br>Will you be my Valentine? 💘</h1>
+    <div class="buttons">
+        <button id="yesButton" onclick="showResponse()">YES! 😍</button>
+        <button id="noButton" onmouseover="moveButton()" onclick="moveButton()">No 🙈</button>
+    </div>
+
+    <script>
+        function moveButton() {
+            const button = document.getElementById('noButton');
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            
+            // Calculate random position within visible area
+            const newX = Math.random() * (viewportWidth - 100);
+            const newY = Math.random() * (viewportHeight - 50);
+            
+            button.style.left = newX + 'px';
+            button.style.top = newY + 'px';
+            
+            // Add temporary shake animation
+            button.style.transform = 'rotate(' + (Math.random() * 20 - 10) + 'deg)';
+        }
+
+        function showResponse() {
+            document.body.innerHTML = `
+                <h1 style="font-size: 3em">
+                    YAY! 🎉💖<br>
+                    You've made me the happiest person!<br>
+                    Let's make amazing memories together! 😊💕
+                </h1>
+                <div class="hearts"></div>
+            `;
+            
+            // Create floating hearts
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = '❤️';
+                heart.style.left = Math.random() * 100 + 'vw';
+                document.querySelector('.hearts').appendChild(heart);
+                
+                setTimeout(() => heart.remove(), 3000);
+            }, 300);
+        }
+
+        // Initial position for the No button
+        window.onload = moveButton;
+    </script>
+</body>
+</html>
