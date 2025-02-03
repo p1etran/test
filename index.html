@@ -52,6 +52,48 @@
             z-index: 1;
         }
 
+        .message {
+            color: white;
+            text-align: center;
+            position: absolute;
+            width: 100%;
+            top: 20%;
+            opacity: 0;
+            transition: opacity 3s;
+            padding: 0 20px;
+            z-index: 2;
+        }
+
+        .particle {
+            position: fixed;
+            font-size: 2rem;
+            animation: float 3s linear forwards;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        .start-button {
+            padding: 1.2rem 2.5rem;
+            font-size: 1.4rem;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            position: absolute;
+            bottom: 30px;
+            z-index: 9999;
+            background: #ff6b6b;
+            color: white;
+            box-shadow: 0 5px 15px rgba(255,107,107,0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 2s ease;
+        }
+
         .przycisk-uciekajacy {
             position: fixed;
             padding: 1.5rem 2.5rem;
@@ -61,66 +103,89 @@
             border: 2px solid #ff6b6b;
             border-radius: 30px;
             cursor: pointer;
-            transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+            transition: transform 0.1s linear;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             touch-action: none;
             user-select: none;
-            z-index: 9999;
+            z-index: 10000;
+            left: 50%;
+            top: 60%;
+            transform: translate(-50%, -50%);
         }
 
-        /* Reszta styli pozostaje bez zmian */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Zawartość zostaje bez zmian -->
+        <button class="start-button" id="startButton">Rozpocznij Naszą Historię 🌅</button>
+        <div class="message" id="message">
+            <h2>Każdy świt z Tobą to nowy rozdział miłości... 📖</h2>
+            <p>Patrz jak nasza historia rozkwita razem ze wschodem słońca 🌸</p>
+        </div>
     </div>
 
     <script>
+        let animationRunning = false;
+        let particlesInterval;
+
+        function createParticles() {
+            particlesInterval = setInterval(() => {
+                const types = ['💖', '🌻', '✨', '🌸'];
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.textContent = types[Math.floor(Math.random() * types.length)];
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 3000);
+            }, 250);
+        }
+
         function handleNieButton() {
-            const przyciskNie = document.getElementById('przyciskNie');
+            const button = document.getElementById('przyciskNie');
+            let posX = window.innerWidth/2 - button.offsetWidth/2;
+            let posY = window.innerHeight/2 - button.offsetHeight/2 + 100;
             let lastTouch = null;
             let velocity = { x: 0, y: 0 };
+            
+            button.style.transform = `translate(${posX}px, ${posY}px)`;
 
-            const moveButton = (clientX, clientY) => {
+            const updatePosition = (x, y) => {
+                const maxX = window.innerWidth - button.offsetWidth;
+                const maxY = window.innerHeight - button.offsetHeight;
+                
+                posX = Math.max(10, Math.min(maxX - 10, x));
+                posY = Math.max(10, Math.min(maxY - 10, y));
+                
+                button.style.transform = `translate(${posX}px, ${posY}px)`;
+                
+                if (navigator.vibrate) navigator.vibrate(20);
+            };
+
+            const handleMove = (clientX, clientY) => {
                 if (!lastTouch) {
                     lastTouch = { x: clientX, y: clientY, time: Date.now() };
                     return;
                 }
 
-                // Oblicz prędkość przesunięcia
                 const deltaTime = Date.now() - lastTouch.time;
                 const deltaX = clientX - lastTouch.x;
                 const deltaY = clientY - lastTouch.y;
-                
+
                 velocity = {
-                    x: deltaX / deltaTime * 100,
-                    y: deltaY / deltaTime * 100
+                    x: (deltaX / deltaTime) * 25,
+                    y: (deltaY / deltaTime) * 25
                 };
 
-                // Oblicz nową pozycję z uwzględnieniem bezwładności
-                const rect = przyciskNie.getBoundingClientRect();
-                const maxX = window.innerWidth - rect.width;
-                const maxY = window.innerHeight - rect.height;
-
-                const newX = Math.max(0, Math.min(maxX, rect.left - deltaX * 2));
-                const newY = Math.max(0, Math.min(maxY, rect.top - deltaY * 2));
-
-                // Animacja z wykorzystaniem transformacji CSS
-                przyciskNie.style.transform = `
-                    translate(${newX}px, ${newY}px)
-                    scale(${1 + Math.hypot(velocity.x, velocity.y) * 0.01})
-                `;
-
-                // Aktualizuj ostatnią pozycję
+                updatePosition(posX + deltaX, posY + deltaY);
                 lastTouch = { x: clientX, y: clientY, time: Date.now() };
-
-                // Wibracje dla iOS
-                if (navigator.vibrate) navigator.vibrate(30);
             };
 
-            // Obsługa dotyku
-            przyciskNie.addEventListener('touchstart', (e) => {
+            button.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 lastTouch = {
                     x: e.touches[0].clientX,
@@ -129,35 +194,100 @@
                 };
             });
 
-            przyciskNie.addEventListener('touchmove', (e) => {
+            button.addEventListener('touchmove', (e) => {
                 e.preventDefault();
-                moveButton(e.touches[0].clientX, e.touches[0].clientY);
+                handleMove(e.touches[0].clientX, e.touches[0].clientY);
             });
 
-            // Kontynuuj ruch po puszczeniu przycisku (bezwładność)
-            przyciskNie.addEventListener('touchend', () => {
+            button.addEventListener('touchend', () => {
                 const applyInertia = () => {
-                    if (Math.abs(velocity.x) < 0.5 && Math.abs(velocity.y) < 0.5) return;
+                    if (Math.abs(velocity.x) < 0.1 && Math.abs(velocity.y) < 0.1) return;
 
-                    const rect = przyciskNie.getBoundingClientRect();
-                    const maxX = window.innerWidth - rect.width;
-                    const maxY = window.innerHeight - rect.height;
-
-                    const newX = Math.max(0, Math.min(maxX, rect.left + velocity.x));
-                    const newY = Math.max(0, Math.min(maxY, rect.top + velocity.y));
-
-                    przyciskNie.style.transform = `translate(${newX}px, ${newY}px)`;
-
-                    velocity.x *= 0.95;
-                    velocity.y *= 0.95;
-
+                    posX += velocity.x;
+                    posY += velocity.y;
+                    
+                    updatePosition(posX, posY);
+                    
+                    velocity.x *= 0.92;
+                    velocity.y *= 0.92;
+                    
                     requestAnimationFrame(applyInertia);
                 };
                 requestAnimationFrame(applyInertia);
+                lastTouch = null;
             });
         }
 
-        // Reszta kodu pozostaje bez zmian
+        function startSunrise() {
+            if (animationRunning) return;
+            animationRunning = true;
+            
+            const sun = document.createElement('div');
+            sun.id = 'sun';
+            document.body.appendChild(sun);
+            
+            void sun.offsetHeight;
+            
+            document.body.style.background = "var(--sunrise)";
+            sun.style.transform = "translateY(-120vh)";
+            document.getElementById('message').style.opacity = '1';
+            createParticles();
+            document.getElementById('startButton').remove();
+            
+            setTimeout(() => {
+                document.body.innerHTML = `
+                    <div class="container" style="background:var(--day)">
+                        <div style="font-size:4rem; margin-bottom:1rem">🌻💘</div>
+                        <h1 style="color:#ff6b6b; font-size:2rem; text-align:center; padding:0 20px">
+                            Zuziu, czy napiszesz ze mną kolejny rozdział? 📖
+                        </h1>
+                        <div style="position:relative; margin-top:2rem; min-height:200px">
+                            <button id="przyciskTak" 
+                                style="background:#ff6b6b; color:white; padding:1.5rem 3rem;
+                                       font-size:1.4rem; border:none; border-radius:30px;
+                                       cursor:pointer; box-shadow:0 5px 15px rgba(255,107,107,0.3);
+                                       position: relative; z-index: 9999;">
+                                Tak! Piszmy dalej! 💞
+                            </button>
+                            <button 
+                                id="przyciskNie"
+                                class="przycisk-uciekajacy">
+                                Zobaczmy jeszcze raz... 🔄
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Initialize buttons after short delay
+                setTimeout(() => {
+                    document.getElementById('przyciskTak').addEventListener('click', accept);
+                    handleNieButton();
+                }, 50);
+            }, 18000);
+        }
+
+        function accept() {
+            clearInterval(particlesInterval);
+            document.body.innerHTML = `
+                <div class="container" style="background:var(--day); animation:pulse 1s infinite">
+                    <div style="font-size:4rem">📖💖🌻</div>
+                    <h1 style="color:#ff6b6b; font-size:2rem; text-align:center">
+                        Nasza historia trwa...<br>
+                        Kocham Cię, Zuziu! 💘
+                    </h1>
+                    <div style="margin-top:2rem; font-size:1.5rem">
+                        😘❤️🌹🎉💍🌸💐🎁🍫
+                    </div>
+                </div>
+            `;
+        }
+
+        window.addEventListener('load', () => {
+            const startButton = document.getElementById('startButton');
+            startButton.style.opacity = '1';
+            startButton.style.transform = 'translateY(0)';
+            startButton.addEventListener('click', startSunrise);
+        });
     </script>
 </body>
 </html>
