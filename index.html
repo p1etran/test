@@ -1,34 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>Good Morning, My Love ☀️</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Morning Valentine Surprise 🌅</title>
     <style>
         :root {
-            --night-color: #1a3657;
-            --day-color: #fff3e0;
+            --night: #1a3657;
+            --sunrise: linear-gradient(to bottom, #ff9966, #ff5e62);
+            --day: #fff3e0;
         }
 
         body {
             margin: 0;
             height: 100vh;
             overflow: hidden;
-            transition: background 15s linear;
-            background: var(--night-color);
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--night);
+            transition: background 20s linear;
         }
 
         .container {
-            position: relative;
             height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
         }
 
-        .sun {
+        #sun {
             width: 80px;
             height: 80px;
             background: #ffdd00;
@@ -36,15 +38,16 @@
             position: absolute;
             bottom: -40px;
             box-shadow: 0 0 40px #ffdd0080;
-            transition: all 15s linear;
+            transition: transform 20s linear;
         }
 
         .message {
-            text-align: center;
             color: white;
+            text-align: center;
             opacity: 0;
             transition: opacity 5s;
             z-index: 2;
+            max-width: 90%;
         }
 
         .stars {
@@ -63,17 +66,21 @@
         }
 
         button {
-            margin-top: 2rem;
             padding: 1.2rem 2.5rem;
             font-size: 1.4rem;
-            background: #ff6b6b;
-            color: white;
             border: none;
             border-radius: 30px;
             cursor: pointer;
             opacity: 0;
-            transform: translateY(50px);
+            transform: translateY(20px);
             transition: all 2s ease;
+            position: absolute;
+            bottom: 30px;
+        }
+
+        #startButton {
+            background: #ff6b6b;
+            color: white;
             box-shadow: 0 5px 15px rgba(255,107,107,0.3);
         }
 
@@ -93,105 +100,117 @@
 
         @keyframes fly {
             0% { transform: translateX(-100vw) translateY(30vh); opacity: 1; }
-            100% { transform: translateX(100vw) translateY(-10vh); opacity: 0.5; }
+            100% { transform: translateX(100vw) translateY(-10vh); opacity: 0; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="stars" id="stars"></div>
-        <div class="sun" id="sun"></div>
+        <div id="sun"></div>
         <div class="birds" id="birds"></div>
         <div class="message" id="message">
-            <h1>Good Morning, Sunshine! ☀️</h1>
-            <p>As this new day begins...</p>
-            <p>There's something special I want to ask you</p>
+            <h1>Good Morning, Beautiful! ☀️</h1>
+            <p>As the sun rises...</p>
         </div>
-        <button id="askButton" onclick="revealQuestion()">Tap to Start Our Day 🌸</button>
+        <button id="startButton" onclick="startSunrise()">Tap to Begin Our Day 🌸</button>
     </div>
 
     <script>
+        // Initialize stars
         function createStars() {
-            const stars = document.getElementById('stars');
+            const starsContainer = document.getElementById('stars');
             for (let i = 0; i < 100; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.animationDelay = Math.random() * 10 + 's';
-                stars.appendChild(star);
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                starsContainer.appendChild(star);
             }
         }
 
         function startSunrise() {
-            document.body.style.background = "linear-gradient(to bottom, #ff9966, #ff5e62)";
-            document.getElementById('sun').style.transform = "translateY(-120vh)";
-            document.getElementById('stars').style.opacity = 0;
-            
-            // Add flying birds
-            const birds = ['🕊️', '🐦', '🐤'];
-            const birdContainer = document.getElementById('birds');
-            for (let i = 0; i < 5; i++) {
+            try {
+                // Hide start button
+                document.getElementById('startButton').style.opacity = '0';
+                
+                // Start transitions
+                document.body.style.background = "var(--sunrise)";
+                document.getElementById('sun').style.transform = "translateY(-120vh)";
+                document.getElementById('stars').style.opacity = '0';
+
+                // Add flying birds
+                const birds = ['🕊️', '🐦', '🐤'];
+                const birdsContainer = document.getElementById('birds');
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const bird = document.createElement('div');
+                        bird.className = 'bird';
+                        bird.textContent = birds[Math.floor(Math.random() * birds.length)];
+                        bird.style.top = `${30 + Math.random() * 40}%`;
+                        bird.style.animationDuration = `${8 + Math.random() * 7}s`;
+                        birdsContainer.appendChild(bird);
+                    }, i * 3000);
+                }
+
+                // Reveal messages
                 setTimeout(() => {
-                    const bird = document.createElement('div');
-                    bird.className = 'bird';
-                    bird.innerHTML = birds[Math.floor(Math.random() * birds.length)];
-                    bird.style.top = Math.random() * 50 + 20 + '%';
-                    bird.style.animationDuration = 8 + Math.random() * 7 + 's';
-                    birdContainer.appendChild(bird);
-                }, i * 3000);
+                    document.getElementById('message').style.opacity = '1';
+                }, 5000);
+
+                // Show final question
+                setTimeout(() => {
+                    document.body.innerHTML = `
+                        <div class="container" style="background:var(--day)">
+                            <h1 style="color:#ff6b6b; font-size:2.5rem; margin-bottom:2rem">
+                                🌹 Will You Be My Valentine? 💌
+                            </h1>
+                            <div style="display:flex; gap:1rem; flex-wrap:wrap; justify-content:center">
+                                <button onclick="accept()" 
+                                    style="background:#ff6b6b; color:white">
+                                    YES! 😍
+                                </button>
+                                <button onclick="restartAnimation()" 
+                                    style="background:#e0e0e0; color:#666">
+                                    More Coffee First ☕
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }, 20000);
+            } catch (error) {
+                console.error('Error in animation:', error);
+                document.body.innerHTML = `<h1 style="color:#ff6b6b; padding:20px">Our sunrise failed 🌧️ But my feelings for you never will! 💖</h1>`;
             }
-
-            // Reveal message
-            setTimeout(() => {
-                document.getElementById('message').style.opacity = 1;
-            }, 5000);
-
-            // Show final button
-            setTimeout(() => {
-                document.getElementById('askButton').style.opacity = 1;
-                document.getElementById('askButton').style.transform = 'translateY(0)';
-                document.getElementById('askButton').innerHTML = "Will You Be My Valentine? 💌";
-            }, 15000);
-        }
-
-        function revealQuestion() {
-            document.body.innerHTML = `
-                <div style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#fff3e0; padding:20px; text-align:center">
-                    <h1 style="color:#ff6b6b; font-size:2.5rem; margin-bottom:2rem">🌹 You Make Every Morning Brighter 🌹</h1>
-                    <div style="display:flex; gap:1rem; flex-wrap:wrap; justify-content:center">
-                        <button onclick="accept()" style="padding:1.5rem 3rem; font-size:1.5rem; background:#ff6b6b; color:white; border:none; border-radius:30px; cursor:pointer">
-                            YES! 😍
-                        </button>
-                        <button onclick="window.location.reload()" style="padding:1.5rem 3rem; font-size:1.5rem; background:#e0e0e0; color:#666; border:none; border-radius:30px; cursor:pointer">
-                            Let Me Sleep On It 😴
-                        </button>
-                    </div>
-                    <div style="margin-top:3rem; font-size:1.2rem; color:#666">
-                        (P.S. The "No" button just restarts the sunrise 😉)
-                    </div>
-                </div>
-            `;
         }
 
         function accept() {
             document.body.innerHTML = `
-                <div style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#fff3e0; padding:20px; text-align:center; animation: pulse 2s infinite">
-                    <h1 style="color:#ff6b6b; font-size:3rem; margin-bottom:2rem">🎉 Best Morning Ever! 💖</h1>
-                    <p style="font-size:1.5rem; color:#666">Can't wait to celebrate with you!<br>Your smile is my sunrise 🌄</p>
-                    <div style="font-size:4rem; margin-top:2rem">😘❤️🌹</div>
+                <div class="container" style="background:var(--day); animation:pulse 1s infinite">
+                    <h1 style="color:#ff6b6b; font-size:2.5rem; text-align:center">
+                        🎉 Best Morning Ever! 💖<br>
+                        Can't wait to celebrate with you!<br>
+                        😘❤️🌹
+                    </h1>
                 </div>
             `;
         }
 
-        // Initialize
-        window.onload = () => {
+        function restartAnimation() {
+            window.location.reload(true);
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
             createStars();
-            setTimeout(() => {
-                document.getElementById('askButton').style.opacity = 1;
-                document.getElementById('askButton').style.transform = 'translateY(0)';
-            }, 1000);
-        };
+            document.getElementById('startButton').style.opacity = '1';
+            document.getElementById('startButton').style.transform = 'translateY(0)';
+        });
+
+        // Prevent mobile refresh
+        document.body.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, { passive: false });
     </script>
 </body>
 </html>
