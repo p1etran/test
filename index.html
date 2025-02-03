@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Walentynkowe Zapytanie 💘</title>
+    <title>Walentynki dla Zuzi 💖</title>
     <style>
         :root {
             --night: #1a3657;
@@ -52,6 +52,48 @@
             z-index: 1;
         }
 
+        .message {
+            color: white;
+            text-align: center;
+            position: absolute;
+            width: 100%;
+            top: 20%;
+            opacity: 0;
+            transition: opacity 3s;
+            padding: 0 20px;
+            z-index: 2;
+        }
+
+        .particle {
+            position: fixed;
+            font-size: 2rem;
+            animation: float 3s linear forwards;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        .start-button {
+            padding: 1.2rem 2.5rem;
+            font-size: 1.4rem;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            position: absolute;
+            bottom: 30px;
+            z-index: 9999;
+            background: #ff6b6b;
+            color: white;
+            box-shadow: 0 5px 15px rgba(255,107,107,0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 2s ease;
+        }
+
         .przycisk-uciekajacy {
             position: absolute;
             padding: 1.5rem 2.5rem;
@@ -68,16 +110,38 @@
             z-index: 9999;
         }
 
-        /* Reszta styli pozostaje bez zmian */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Pozostała zawartość -->
+        <button class="start-button" id="startButton">Rozpocznij Naszą Historię 🌅</button>
+        <div class="message" id="message">
+            <h2>Każdy świt z Tobą to nowy rozdział miłości... 📖</h2>
+            <p>Patrz jak nasza historia rozkwita razem ze wschodem słońca 🌸</p>
+        </div>
     </div>
 
     <script>
-        // Ulepszona funkcja dla przycisku "Nie"
+        let animationRunning = false;
+        let particlesInterval;
+
+        function createParticles() {
+            particlesInterval = setInterval(() => {
+                const types = ['💖', '🌻', '✨', '🌸'];
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.textContent = types[Math.floor(Math.random() * types.length)];
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 3000);
+            }, 250);
+        }
+
         function handleNieButton() {
             const przyciskNie = document.getElementById('przyciskNie');
             let isMoving = false;
@@ -90,63 +154,111 @@
                 const buttonCenterX = rect.left + rect.width/2;
                 const buttonCenterY = rect.top + rect.height/2;
 
-                // Oblicz nową pozycję
+                // Calculate escape direction
                 const angle = Math.atan2(clientY - buttonCenterY, clientX - buttonCenterX);
-                const distance = 150; // Zwiększona odległość ucieczki
+                const distance = 150;
                 
                 const newX = buttonCenterX + Math.cos(angle + Math.PI) * distance;
                 const newY = buttonCenterY + Math.sin(angle + Math.PI) * distance;
 
-                // Ograniczenia ekranowe
+                // Apply boundaries
                 const maxX = window.innerWidth - rect.width;
                 const maxY = window.innerHeight - rect.height;
 
-                przyciskNie.style.left = `${Math.min(Math.max(newX, 0), maxX)}px`;
-                przyciskNie.style.top = `${Math.min(Math.max(newY, 0), maxY)}px`;
+                przyciskNie.style.left = `${Math.max(0, Math.min(newX, maxX))}px`;
+                przyciskNie.style.top = `${Math.max(0, Math.min(newY, maxY))}px`;
 
-                // Animacja rotacji
+                // Rotation animation
                 przyciskNie.style.transform = `rotate(${angle * (180/Math.PI)}deg)`;
 
-                // Wibracje
+                // Vibration
                 if (navigator.vibrate) navigator.vibrate(50);
 
-                // Reset po animacji
                 setTimeout(() => isMoving = false, 300);
             };
 
-            // Obsługa dotyku
+            // Touch handling
             przyciskNie.ontouchstart = (e) => {
                 moveButton(e.touches[0].clientX, e.touches[0].clientY);
             };
 
-            // Obsługa myszy
+            // Mouse handling
             przyciskNie.onmousedown = (e) => {
                 moveButton(e.clientX, e.clientY);
             };
         }
 
-        // W funkcji showQuestion po setTimeout:
-        setTimeout(() => {
+        function startSunrise() {
+            if (animationRunning) return;
+            animationRunning = true;
+            
+            const sun = document.createElement('div');
+            sun.id = 'sun';
+            document.body.appendChild(sun);
+            
+            // Force reflow for smooth animation
+            void sun.offsetHeight;
+            
+            document.body.style.background = "var(--sunrise)";
+            sun.style.transform = "translateY(-120vh)";
+            document.getElementById('message').style.opacity = '1';
+            createParticles();
+
+            document.getElementById('startButton').remove();
+            
+            setTimeout(() => {
+                document.body.innerHTML = `
+                    <div class="container" style="background:var(--day)">
+                        <div style="font-size:4rem; margin-bottom:1rem">🌻💘</div>
+                        <h1 style="color:#ff6b6b; font-size:2rem; text-align:center; padding:0 20px">
+                            Zuziu, czy napiszesz ze mną kolejny rozdział? 📖
+                        </h1>
+                        <div style="position:relative; margin-top:2rem; min-height:200px">
+                            <button id="przyciskTak" 
+                                style="background:#ff6b6b; color:white; padding:1.5rem 3rem;
+                                       font-size:1.4rem; border:none; border-radius:30px;
+                                       cursor:pointer; box-shadow:0 5px 15px rgba(255,107,107,0.3)">
+                                Tak! Piszmy dalej! 💞
+                            </button>
+                            <button 
+                                id="przyciskNie"
+                                class="przycisk-uciekajacy"
+                                style="position:absolute; left:50%; transform:translateX(-50%)">
+                                Zobaczmy jeszcze raz... 🔄
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Initialize buttons
+                document.getElementById('przyciskTak').addEventListener('click', accept);
+                handleNieButton();
+            }, 18000);
+        }
+
+        function accept() {
+            clearInterval(particlesInterval);
             document.body.innerHTML = `
-                <div class="container" style="background:var(--day)">
-                    <h1 style="color:#ff6b6b; font-size:2rem; text-align:center; padding:0 20px">
-                        Zuziu, zostaniesz moją Walentynką? 💝
+                <div class="container" style="background:var(--day); animation:pulse 1s infinite">
+                    <div style="font-size:4rem">📖💖🌻</div>
+                    <h1 style="color:#ff6b6b; font-size:2rem; text-align:center">
+                        Nasza historia trwa...<br>
+                        Kocham Cię, Zuziu! 💘
                     </h1>
-                    <div style="position:relative; margin-top:2rem; min-height:200px">
-                        <button id="przyciskTak">Tak! 💖</button>
-                        <button 
-                            id="przyciskNie"
-                            class="przycisk-uciekajacy"
-                            style="position:absolute; left:50%; transform:translateX(-50%)">
-                            Muszę pomyśleć... 🙈
-                        </button>
+                    <div style="margin-top:2rem; font-size:1.5rem">
+                        😘❤️🌹🎉💍🌸💐🎁🍫
                     </div>
                 </div>
             `;
+        }
 
-            document.getElementById('przyciskTak').onclick = accept;
-            handleNieButton(); // Inicjalizuj przycisk "Nie"
-        }, 18000);
+        // Initialize
+        window.addEventListener('load', () => {
+            const startButton = document.getElementById('startButton');
+            startButton.style.opacity = '1';
+            startButton.style.transform = 'translateY(0)';
+            startButton.addEventListener('click', startSunrise);
+        });
     </script>
 </body>
 </html>
