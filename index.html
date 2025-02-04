@@ -94,29 +94,40 @@
             transition: all 2s ease;
         }
 
-        .przycisk-uciekajacy {
+        /* COMPLETELY REDESIGNED ESCAPE BUTTON SYSTEM */
+        .escape-container {
             position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10000;
+        }
+
+        .escape-button {
+            position: absolute;
             padding: 1.5rem 2.5rem;
             font-size: 1.4rem;
-            background: #ffffff;
-            color: #ff6b6b;
-            border: 2px solid #ff6b6b;
+            background: #ff4444;
+            color: white !important;
+            border: 3px solid white;
             border-radius: 30px;
             cursor: pointer;
-            transition: transform 0.1s linear;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             touch-action: none;
             user-select: none;
-            z-index: 10000;
+            transform: translate(-50%, -50%);
             left: 50%;
             top: 60%;
-            transform: translate(-50%, -50%);
+            opacity: 1 !important;
+            pointer-events: all;
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
         }
     </style>
 </head>
@@ -133,6 +144,22 @@
         let animationRunning = false;
         let particlesInterval;
 
+        // DEBUG SYSTEM
+        function debugLog(message) {
+            const debugDiv = document.createElement('div');
+            debugDiv.style.position = 'fixed';
+            debugDiv.style.top = '10px';
+            debugDiv.style.left = '10px';
+            debugDiv.style.background = 'rgba(0,0,0,0.7)';
+            debugDiv.style.color = 'white';
+            debugDiv.style.padding = '10px';
+            debugDiv.style.borderRadius = '5px';
+            debugDiv.style.zIndex = '99999';
+            debugDiv.textContent = `DEBUG: ${message}`;
+            document.body.appendChild(debugDiv);
+            setTimeout(() => debugDiv.remove(), 2000);
+        }
+
         function createParticles() {
             particlesInterval = setInterval(() => {
                 const types = ['💖', '🌻', '✨', '🌸'];
@@ -145,143 +172,183 @@
             }, 250);
         }
 
-        function handleNieButton() {
-            const button = document.getElementById('przyciskNie');
-            let posX = window.innerWidth/2 - button.offsetWidth/2;
-            let posY = window.innerHeight/2 - button.offsetHeight/2 + 100;
-            let lastTouch = null;
-            let velocity = { x: 0, y: 0 };
+        function createEscapeButton() {
+            debugLog('Creating escape button...');
             
-            button.style.transform = `translate(${posX}px, ${posY}px)`;
+            // Create container
+            const container = document.createElement('div');
+            container.className = 'escape-container';
+            
+            // Create button
+            const button = document.createElement('button');
+            button.className = 'escape-button';
+            button.id = 'escapeButton';
+            button.textContent = 'Zobaczmy jeszcze raz... 🔄';
+            
+            container.appendChild(button);
+            document.body.appendChild(container);
+            
+            // Initialize movement
+            initButtonMovement(button);
+            debugLog('Escape button created!');
+        }
 
-            const updatePosition = (x, y) => {
+        function initButtonMovement(button) {
+            debugLog('Initializing button movement...');
+            
+            let posX = window.innerWidth / 2;
+            let posY = window.innerHeight / 2 + 100;
+            let velocityX = 0;
+            let velocityY = 0;
+            let isDragging = false;
+
+            // Set initial position
+            button.style.left = `${posX}px`;
+            button.style.top = `${posY}px`;
+
+            // Touch handlers
+            button.ontouchstart = (e) => {
+                e.preventDefault();
+                isDragging = true;
+                if(navigator.vibrate) navigator.vibrate(30);
+                debugLog('Touch started');
+            };
+
+            button.ontouchmove = (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+                
+                const touch = e.touches[0];
+                const newX = touch.clientX - button.offsetWidth/2;
+                const newY = touch.clientY - button.offsetHeight/2;
+
+                velocityX = (newX - posX) * 1.5;
+                velocityY = (newY - posY) * 1.5;
+
+                posX = newX;
+                posY = newY;
+
+                button.style.left = `${posX}px`;
+                button.style.top = `${posY}px`;
+            };
+
+            button.ontouchend = () => {
+                isDragging = false;
+                applyPhysics();
+                debugLog('Touch ended');
+            };
+
+            // Physics engine
+            function applyPhysics() {
+                if (Math.abs(velocityX) < 0.1 && Math.abs(velocityY) < 0.1) return;
+
+                posX += velocityX;
+                posY += velocityY;
+
+                // Screen boundaries
                 const maxX = window.innerWidth - button.offsetWidth;
                 const maxY = window.innerHeight - button.offsetHeight;
-                
-                posX = Math.max(10, Math.min(maxX - 10, x));
-                posY = Math.max(10, Math.min(maxY - 10, y));
-                
-                button.style.transform = `translate(${posX}px, ${posY}px)`;
-                
-                if (navigator.vibrate) navigator.vibrate(20);
-            };
 
-            const handleMove = (clientX, clientY) => {
-                if (!lastTouch) {
-                    lastTouch = { x: clientX, y: clientY, time: Date.now() };
-                    return;
+                if (posX < 0) {
+                    posX = 0;
+                    velocityX *= -0.8;
+                }
+                if (posX > maxX) {
+                    posX = maxX;
+                    velocityX *= -0.8;
+                }
+                if (posY < 0) {
+                    posY = 0;
+                    velocityY *= -0.8;
+                }
+                if (posY > maxY) {
+                    posY = maxY;
+                    velocityY *= -0.8;
                 }
 
-                const deltaTime = Date.now() - lastTouch.time;
-                const deltaX = clientX - lastTouch.x;
-                const deltaY = clientY - lastTouch.y;
+                button.style.left = `${posX}px`;
+                button.style.top = `${posY}px`;
 
-                velocity = {
-                    x: (deltaX / deltaTime) * 25,
-                    y: (deltaY / deltaTime) * 25
-                };
+                velocityX *= 0.92;
+                velocityY *= 0.92;
 
-                updatePosition(posX + deltaX, posY + deltaY);
-                lastTouch = { x: clientX, y: clientY, time: Date.now() };
-            };
+                requestAnimationFrame(applyPhysics);
+            }
 
-            button.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                lastTouch = {
-                    x: e.touches[0].clientX,
-                    y: e.touches[0].clientY,
-                    time: Date.now()
-                };
-            });
-
-            button.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                handleMove(e.touches[0].clientX, e.touches[0].clientY);
-            });
-
-            button.addEventListener('touchend', () => {
-                const applyInertia = () => {
-                    if (Math.abs(velocity.x) < 0.1 && Math.abs(velocity.y) < 0.1) return;
-
-                    posX += velocity.x;
-                    posY += velocity.y;
-                    
-                    updatePosition(posX, posY);
-                    
-                    velocity.x *= 0.92;
-                    velocity.y *= 0.92;
-                    
-                    requestAnimationFrame(applyInertia);
-                };
-                requestAnimationFrame(applyInertia);
-                lastTouch = null;
-            });
+            // Auto-jiggle system
+            setInterval(() => {
+                if (isDragging) return;
+                velocityX += (Math.random() - 0.5) * 0.5;
+                velocityY += (Math.random() - 0.5) * 0.5;
+            }, 100);
         }
 
         function startSunrise() {
             if (animationRunning) return;
             animationRunning = true;
             
+            debugLog('Starting animation...');
+            
+            // Create sun
             const sun = document.createElement('div');
             sun.id = 'sun';
             document.body.appendChild(sun);
             
-            void sun.offsetHeight;
+            // Trigger animation
+            setTimeout(() => {
+                document.body.style.background = "var(--sunrise)";
+                sun.style.transform = "translateY(-120vh)";
+                document.getElementById('message').style.opacity = '1';
+            }, 50);
             
-            document.body.style.background = "var(--sunrise)";
-            sun.style.transform = "translateY(-120vh)";
-            document.getElementById('message').style.opacity = '1';
             createParticles();
             document.getElementById('startButton').remove();
-            
+
+            // Create escape button after delay
             setTimeout(() => {
+                debugLog('Creating question screen...');
                 document.body.innerHTML = `
                     <div class="container" style="background:var(--day)">
                         <div style="font-size:4rem; margin-bottom:1rem">🌻💘</div>
                         <h1 style="color:#ff6b6b; font-size:2rem; text-align:center; padding:0 20px">
                             Zuziu, czy napiszesz ze mną kolejny rozdział? 📖
                         </h1>
-                        <div style="position:relative; margin-top:2rem; min-height:200px">
+                        <div style="margin-top:2rem; position:relative; height:200px">
                             <button id="przyciskTak" 
                                 style="background:#ff6b6b; color:white; padding:1.5rem 3rem;
                                        font-size:1.4rem; border:none; border-radius:30px;
                                        cursor:pointer; box-shadow:0 5px 15px rgba(255,107,107,0.3);
-                                       position: relative; z-index: 9999;">
+                                       position: absolute; left: 50%; transform: translateX(-50%);">
                                 Tak! Piszmy dalej! 💞
-                            </button>
-                            <button 
-                                id="przyciskNie"
-                                class="przycisk-uciekajacy">
-                                Zobaczmy jeszcze raz... 🔄
                             </button>
                         </div>
                     </div>
                 `;
 
-                // Initialize buttons after short delay
-                setTimeout(() => {
-                    document.getElementById('przyciskTak').addEventListener('click', accept);
-                    handleNieButton();
-                }, 50);
+                // Add escape button
+                createEscapeButton();
+                
+                // Add yes button handler
+                document.getElementById('przyciskTak').addEventListener('click', () => {
+                    clearInterval(particlesInterval);
+                    document.body.innerHTML = `
+                        <div class="container" style="background:var(--day); animation: pulse 1s infinite">
+                            <div style="font-size:4rem">📖💖🌻</div>
+                            <h1 style="color:#ff6b6b; font-size:2rem; text-align:center">
+                                Nasza historia trwa...<br>
+                                Kocham Cię, Zuziu! 💘
+                            </h1>
+                            <div style="margin-top:2rem; font-size:1.5rem">
+                                😘❤️🌹🎉💍🌸💐🎁🍫
+                            </div>
+                        </div>
+                    `;
+                });
+                
             }, 18000);
         }
 
-        function accept() {
-            clearInterval(particlesInterval);
-            document.body.innerHTML = `
-                <div class="container" style="background:var(--day); animation:pulse 1s infinite">
-                    <div style="font-size:4rem">📖💖🌻</div>
-                    <h1 style="color:#ff6b6b; font-size:2rem; text-align:center">
-                        Nasza historia trwa...<br>
-                        Kocham Cię, Zuziu! 💘
-                    </h1>
-                    <div style="margin-top:2rem; font-size:1.5rem">
-                        😘❤️🌹🎉💍🌸💐🎁🍫
-                    </div>
-                </div>
-            `;
-        }
-
+        // Initialize
         window.addEventListener('load', () => {
             const startButton = document.getElementById('startButton');
             startButton.style.opacity = '1';
