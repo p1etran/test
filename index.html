@@ -1,10 +1,9 @@
-ten kod ponizej chyba dzialal, sprawdz:
 <!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Walentynki dla Zuzi 💖</title>
+    <title>Walentynki dla Zuzi 🌻</title>
     <style>
         :root {
             --night: #1a3657;
@@ -16,8 +15,6 @@ ten kod ponizej chyba dzialal, sprawdz:
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -36,7 +33,6 @@ ten kod ponizej chyba dzialal, sprawdz:
             align-items: center;
             justify-content: center;
             padding: 20px;
-            position: relative;
         }
 
         #sun {
@@ -50,357 +46,115 @@ ten kod ponizej chyba dzialal, sprawdz:
             transform: translateX(-50%);
             box-shadow: 0 0 40px #ffdd0080;
             transition: all 20s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1;
         }
 
         .message {
             color: white;
             text-align: center;
-            position: absolute;
-            width: 100%;
-            top: 20%;
+            margin-bottom: 2rem;
             opacity: 0;
             transition: opacity 3s;
-            padding: 0 20px;
-            z-index: 2;
         }
 
-        .romantic-text {
-            position: absolute;
-            top: 30%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 600px;
-            text-align: center;
-            color: white;
-            font-size: 1.4rem;
-            line-height: 1.6;
-            opacity: 0;
-            transition: opacity 2s ease-in-out;
+        .sunflower {
+            font-size: 4rem;
+            margin: 1rem;
+            animation: pulse 2s infinite;
         }
 
-        .particle {
-            position: fixed;
-            font-size: 2rem;
-            animation: float 3s linear forwards;
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        @keyframes float {
-            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
-        }
-
-        .start-button {
-            padding: 1.2rem 2.5rem;
-            font-size: 1.4rem;
+        button {
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
             border: none;
-            border-radius: 30px;
+            border-radius: 20px;
             cursor: pointer;
-            position: absolute;
-            bottom: 30px;
-            z-index: 9999;
+            margin: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        #przyciskTak {
             background: #ff6b6b;
             color: white;
             box-shadow: 0 5px 15px rgba(255,107,107,0.3);
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 2s ease;
         }
 
-        .escape-button {
-            position: absolute;
-            padding: 1.2rem 2rem;
-            font-size: 1.2rem;
-            background: #ff4444;
-            color: white;
-            border: 2px solid white;
-            border-radius: 20px;
-            cursor: pointer;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-            touch-action: none;
-            user-select: none;
-            transform: translate(-50%, -50%);
-            transition: all 0.1s ease;
-            z-index: 10000;
-        }
-
-        .final-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: var(--day);
-            padding: 20px;
-            text-align: center;
-            overflow: auto;
+        .przyciskNie {
+            background: #ffffff;
+            color: #ff6b6b;
+            border: 2px solid #ff6b6b;
         }
 
         @keyframes pulse {
             0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            50% { transform: scale(1.1); }
             100% { transform: scale(1); }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <button class="start-button" id="startButton">Rozpocznij Naszą Historię 🌅</button>
+        <div class="sunflower">🌻</div>
         <div class="message" id="message">
-            <h2>Każdy świt z Tobą to nowy rozdział miłości... 📖</h2>
-            <p>Patrz jak nasza historia rozkwita razem ze wschodem słońca 🌸</p>
+            <h1>Zuziu, czy zostaniesz moją Walentynką? 🌻</h1>
         </div>
-        <div class="romantic-text" id="romanticText"></div>
+        <div>
+            <button id="przyciskTak">Tak! 🌻</button>
+            <button id="przyciskNie" class="przyciskNie">Nie</button>
+        </div>
     </div>
 
     <script>
-        let animationRunning = false;
-        let particlesInterval;
         let buttonCounter = 0;
 
-        const romanticLines = [
-            "Dzień dobry, kochanie. 💖",
-            "Zastanawiałem się ostatnio, jak bardzo jestem szczęśliwy, że jesteś ze mną.",
-            "Każdy poranek z Tobą to nowy powód, by się uśmiechać.",
-            "Pamiętasz nasze pierwsze spotkanie? To był jeden z najlepszych dni w moim życiu.",
-            "Dziś, gdy słońce wstaje, myślę o tym, jak wiele radości mi dajesz.",
-            "Cieszę się, że mogę być częścią Twojego życia i dzielić z Tobą te małe, codzienne chwile.",
-            "Dziękuję, że jesteś taka, jaka jesteś – wyjątkowa, pełna ciepła i uśmiechu.",
-            "Kocham Cię za to, jak potrafisz rozjaśnić nawet najciemniejszy dzień.",
-            "Dziś i zawsze – jesteś moim słońcem. 🌞",
-            "A teraz... mam dla Ciebie małe pytanie. 😊"
-        ];
-
-        function createParticles() {
-            particlesInterval = setInterval(() => {
-                const types = ['💖', '🌻', '✨', '🌸'];
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + 'vw';
-                particle.textContent = types[Math.floor(Math.random() * types.length)];
-                document.body.appendChild(particle);
-                setTimeout(() => particle.remove(), 3000);
-            }, 250);
-        }
-
-        function createEscapeButton(text, x, y) {
-            const button = document.createElement('button');
-            button.className = 'escape-button';
-            button.textContent = text;
-            button.style.left = `${x}px`;
-            button.style.top = `${y}px`;
-            
-            // Add movement handler
-            initButtonMovement(button);
-            
-            // Add click handler
-            button.addEventListener('click', () => {
-                if (text === 'Nie' || text === 'Na pewno?') {
-                    const newX = Math.random() * (window.innerWidth - 100) + 50;
-                    const newY = Math.random() * (window.innerHeight - 100) + 50;
-                    createEscapeButton('Na pewno?', newX, newY);
-                    buttonCounter++;
-                    
-                    // Make button smaller and faster
-                    button.style.padding = `${1 - buttonCounter * 0.1}rem ${2 - buttonCounter * 0.2}rem`;
-                    button.style.fontSize = `${1.2 - buttonCounter * 0.1}rem`;
-                }
-            });
-            
-            document.body.appendChild(button);
-            return button;
-        }
-
-        function initButtonMovement(button) {
-            let posX = parseFloat(button.style.left);
-            let posY = parseFloat(button.style.top);
-            let velocityX = 0;
-            let velocityY = 0;
-            let isDragging = false;
-
-            const physics = {
-                friction: 0.92,
-                bounce: 0.8,
-                pushForce: 3.0 + buttonCounter * 0.5,
-                autoMove: 0.8 + buttonCounter * 0.2
-            };
-
-            button.ontouchstart = (e) => {
-                e.preventDefault();
-                isDragging = true;
-                if(navigator.vibrate) navigator.vibrate(30);
-            };
-
-            button.ontouchmove = (e) => {
-                if (!isDragging) return;
-                e.preventDefault();
-                
-                const touch = e.touches[0];
-                const newX = touch.clientX - button.offsetWidth/2;
-                const newY = touch.clientY - button.offsetHeight/2;
-
-                velocityX = (newX - posX) * physics.pushForce;
-                velocityY = (newY - posY) * physics.pushForce;
-
-                posX = newX;
-                posY = newY;
-
-                button.style.left = `${posX}px`;
-                button.style.top = `${posY}px`;
-            };
-
-            button.ontouchend = () => {
-                isDragging = false;
-                applyPhysics();
-            };
-
-            function applyPhysics() {
-                if (Math.abs(velocityX) < 0.1 && Math.abs(velocityY) < 0.1) return;
-
-                posX += velocityX;
-                posY += velocityY;
-
-                const padding = 20;
-                const maxX = window.innerWidth - button.offsetWidth - padding;
-                const maxY = window.innerHeight - button.offsetHeight - padding;
-
-                if (posX < padding) {
-                    posX = padding;
-                    velocityX *= -physics.bounce;
-                }
-                if (posX > maxX) {
-                    posX = maxX;
-                    velocityX *= -physics.bounce;
-                }
-                if (posY < padding) {
-                    posY = padding;
-                    velocityY *= -physics.bounce;
-                }
-                if (posY > maxY) {
-                    posY = maxY;
-                    velocityY *= -physics.bounce;
-                }
-
-                button.style.left = `${posX}px`;
-                button.style.top = `${posY}px`;
-
-                velocityX *= physics.friction;
-                velocityY *= physics.friction;
-
-                requestAnimationFrame(applyPhysics);
-            }
-
-            setInterval(() => {
-                if (isDragging) return;
-                velocityX += (Math.random() - 0.5) * physics.autoMove;
-                velocityY += (Math.random() - 0.5) * physics.autoMove;
-            }, 100);
-        }
-
-        function showRomanticText() {
-            const textElement = document.getElementById('romanticText');
-            let lineIndex = 0;
-
-            const showNextLine = () => {
-                if (lineIndex < romanticLines.length) {
-                    textElement.textContent = romanticLines[lineIndex];
-                    textElement.style.opacity = 1;
-                    lineIndex++;
-
-                    // Fade out after 3 seconds
-                    setTimeout(() => {
-                        textElement.style.opacity = 0;
-                    }, 3000);
-
-                    // Show next line after 4 seconds
-                    setTimeout(showNextLine, 4000);
-                }
-            };
-
-            showNextLine();
-        }
-
-        function startSunrise() {
-            if (animationRunning) return;
-            animationRunning = true;
-            
-            const sun = document.createElement('div');
-            sun.id = 'sun';
-            document.body.appendChild(sun);
-            
-            setTimeout(() => {
-                document.body.style.background = "var(--sunrise)";
-                sun.style.transform = "translateY(-120vh)";
-                document.getElementById('message').style.opacity = '1';
-                showRomanticText();
-            }, 50);
-            
-            createParticles();
-            document.getElementById('startButton').remove();
-
-            setTimeout(() => {
-                document.body.innerHTML = `
-                    <div class="container" style="background:var(--day)">
-                        <div style="font-size:4rem; margin-bottom:1rem">🌻💘</div>
-                        <h1 style="color:#ff6b6b; font-size:2rem; text-align:center; padding:0 20px">
-                            Zuziu, czy napiszesz ze mną kolejny rozdział? 📖
-                        </h1>
-                        <div style="margin-top:2rem; position:relative; height:200px">
-                            <button id="przyciskTak" 
-                                style="background:#ff6b6b; color:white; padding:1.5rem 3rem;
-                                       font-size:1.4rem; border:none; border-radius:30px;
-                                       cursor:pointer; box-shadow:0 5px 15px rgba(255,107,107,0.3);
-                                       position: absolute; left: 50%; transform: translateX(-50%);">
-                                Tak! Piszmy dalej! 💞
-                            </button>
-                            <button id="przyciskNie" class="escape-button" style="left: 30%; top: 70%;">
-                                Nie
-                            </button>
-                        </div>
-                    </div>
-                `;
-
-                // Add "Nie" button functionality
-                const nieButton = document.getElementById('przyciskNie');
-                initButtonMovement(nieButton);
-                nieButton.addEventListener('click', () => {
-                    const newX = Math.random() * (window.innerWidth - 100) + 50;
-                    const newY = Math.random() * (window.innerHeight - 100) + 50;
-                    createEscapeButton('Na pewno?', newX, newY);
-                });
-
-                document.getElementById('przyciskTak').addEventListener('click', () => {
-                    clearInterval(particlesInterval);
-                    document.body.innerHTML = `
-                        <div class="final-screen">
-                            <div style="font-size:4rem">📖💖🌻</div>
-                            <h1 style="color:#ff6b6b; font-size:2rem; text-align:center">
-                                Nasza historia trwa...<br>
-                                Kocham Cię, Zuziu! 💘
-                            </h1>
-                            <div style="margin-top:2rem; font-size:1.5rem">
-                                😘❤️🌹🎉💍🌸💐🎁🍫
-                            </div>
-                        </div>
-                    `;
-                });
-                
-            }, 18000);
-        }
-
-        window.addEventListener('load', () => {
-            const startButton = document.getElementById('startButton');
-            startButton.style.opacity = '1';
-            startButton.style.transform = 'translateY(0)';
-            startButton.addEventListener('click', startSunrise);
+        // Obsługa przycisku "Tak"
+        document.getElementById('przyciskTak').addEventListener('click', () => {
+            document.body.innerHTML = `
+                <div class="container" style="background:var(--day); text-align:center">
+                    <div class="sunflower">🌻</div>
+                    <h1 style="color:#ff6b6b">Dziękuję! Jesteś najlepszą Walentynką! 💖</h1>
+                    <p>Kocham Cię bardziej niż wszystkie słoneczniki na świecie 🌻</p>
+                    <div style="font-size:2rem; margin-top:1rem">😘❤️🌹🎉🌸💐</div>
+                </div>
+            `;
         });
+
+        // Obsługa przycisku "Nie"
+        document.getElementById('przyciskNie').addEventListener('click', () => {
+            buttonCounter++;
+            const container = document.querySelector('.container');
+            
+            // Tworzenie nowego przycisku "Na pewno?"
+            const newButton = document.createElement('button');
+            newButton.className = 'przyciskNie';
+            newButton.textContent = 'Na pewno?';
+            newButton.style.position = 'absolute';
+            newButton.style.left = `${Math.random() * 80 + 10}%`;
+            newButton.style.top = `${Math.random() * 80 + 10}%`;
+            newButton.style.transform = 'translate(-50%, -50%)';
+            newButton.style.fontSize = `${1.2 - buttonCounter * 0.1}rem`;
+            newButton.style.padding = `${1 - buttonCounter * 0.1}rem ${2 - buttonCounter * 0.2}rem`;
+
+            // Dodanie obsługi kliknięcia dla nowego przycisku
+            newButton.addEventListener('click', () => {
+                buttonCounter++;
+                const newerButton = newButton.cloneNode(true);
+                newerButton.style.left = `${Math.random() * 80 + 10}%`;
+                newerButton.style.top = `${Math.random() * 80 + 10}%`;
+                newerButton.style.fontSize = `${1.2 - buttonCounter * 0.1}rem`;
+                newerButton.style.padding = `${1 - buttonCounter * 0.1}rem ${2 - buttonCounter * 0.2}rem`;
+                container.appendChild(newerButton);
+            });
+
+            container.appendChild(newButton);
+        });
+
+        // Animacja wschodu słońca
+        setTimeout(() => {
+            document.body.style.background = "var(--sunrise)";
+            document.getElementById('message').style.opacity = '1';
+            const sun = document.getElementById('sun');
+            sun.style.transform = "translateY(-120vh)";
+        }, 500);
     </script>
 </body>
 </html>
