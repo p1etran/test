@@ -15,6 +15,8 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -33,6 +35,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
         }
 
         #sun {
@@ -46,115 +49,362 @@
             transform: translateX(-50%);
             box-shadow: 0 0 40px #ffdd0080;
             transition: all 20s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
         }
 
         .message {
             color: white;
             text-align: center;
-            margin-bottom: 2rem;
+            position: absolute;
+            width: 100%;
+            top: 20%;
             opacity: 0;
             transition: opacity 3s;
+            padding: 0 20px;
+            z-index: 2;
+        }
+
+        .romantic-text {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            color: white;
+            font-size: 1.4rem;
+            line-height: 1.6;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+        }
+
+        .particle {
+            position: fixed;
+            font-size: 2rem;
+            animation: float 3s linear forwards;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        .start-button {
+            padding: 1.2rem 2.5rem;
+            font-size: 1.4rem;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            position: absolute;
+            bottom: 30px;
+            z-index: 9999;
+            background: #ff6b6b;
+            color: white;
+            box-shadow: 0 5px 15px rgba(255,107,107,0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 2s ease;
+        }
+
+        .escape-button {
+            position: absolute;
+            padding: 1.2rem 2rem;
+            font-size: 1.2rem;
+            background: #ff4444;
+            color: white;
+            border: 2px solid white;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            touch-action: none;
+            user-select: none;
+            transform: translate(-50%, -50%);
+            transition: all 0.1s ease;
+            z-index: 10000;
+        }
+
+        .final-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--day);
+            padding: 20px;
+            text-align: center;
+            overflow: auto;
         }
 
         .sunflower {
             font-size: 4rem;
-            margin: 1rem;
-            animation: pulse 2s infinite;
+            margin: 20px;
+            animation: rotate 5s infinite linear;
         }
 
-        button {
-            padding: 1rem 2rem;
-            font-size: 1.2rem;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            margin: 0.5rem;
-            transition: transform 0.3s ease;
-        }
-
-        #przyciskTak {
-            background: #ff6b6b;
-            color: white;
-            box-shadow: 0 5px 15px rgba(255,107,107,0.3);
-        }
-
-        .przyciskNie {
-            background: #ffffff;
-            color: #ff6b6b;
-            border: 2px solid #ff6b6b;
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         @keyframes pulse {
             0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="sunflower">🌻</div>
+        <button class="start-button" id="startButton">Rozpocznij Naszą Historię 🌻</button>
         <div class="message" id="message">
-            <h1>Zuziu, czy zostaniesz moją Walentynką? 🌻</h1>
+            <h2>Każdy dzień z Tobą to nowy powód do szczęścia... 🌻</h2>
+            <p>Patrz jak nasza miłość rozkwita razem ze wschodem słońca</p>
         </div>
-        <div>
-            <button id="przyciskTak">Tak! 🌻</button>
-            <button id="przyciskNie" class="przyciskNie">Nie</button>
-        </div>
+        <div class="romantic-text" id="romanticText"></div>
     </div>
 
     <script>
+        let animationRunning = false;
+        let particlesInterval;
         let buttonCounter = 0;
 
-        // Obsługa przycisku "Tak"
-        document.getElementById('przyciskTak').addEventListener('click', () => {
-            document.body.innerHTML = `
-                <div class="container" style="background:var(--day); text-align:center">
-                    <div class="sunflower">🌻</div>
-                    <h1 style="color:#ff6b6b">Dziękuję! Jesteś najlepszą Walentynką! 💖</h1>
-                    <p>Kocham Cię bardziej niż wszystkie słoneczniki na świecie 🌻</p>
-                    <div style="font-size:2rem; margin-top:1rem">😘❤️🌹🎉🌸💐</div>
-                </div>
-            `;
-        });
+        const romanticLines = [
+            "Dzień dobry, moje słońce 🌻",
+            "Zastanawiałem się, jak zacząć ten dzień...",
+            "I zrozumiałem, że najlepszym początkiem jesteś Ty",
+            "Twój uśmiech rozświetla mój świat bardziej niż słońce",
+            "Dziś, gdy świat budzi się do życia...",
+            "Chcę Ci powiedzieć coś ważnego",
+            "Jesteś najpiękniejszym słonecznikiem w moim życiu",
+            "Który zawsze zwraca się w stronę światła",
+            "I sprawia, że każdy dzień jest wyjątkowy",
+            "Gotowy na moje pytanie? 😊"
+        ];
 
-        // Obsługa przycisku "Nie"
-        document.getElementById('przyciskNie').addEventListener('click', () => {
-            buttonCounter++;
-            const container = document.querySelector('.container');
+        function createParticles() {
+            particlesInterval = setInterval(() => {
+                const types = ['🌻', '💖', '✨', '🌸'];
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.textContent = types[Math.floor(Math.random() * types.length)];
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 3000);
+            }, 250);
+        }
+
+        function createEscapeButton(text, x, y) {
+            const button = document.createElement('button');
+            button.className = 'escape-button';
+            button.textContent = text;
+            button.style.left = `${x}px`;
+            button.style.top = `${y}px`;
             
-            // Tworzenie nowego przycisku "Na pewno?"
-            const newButton = document.createElement('button');
-            newButton.className = 'przyciskNie';
-            newButton.textContent = 'Na pewno?';
-            newButton.style.position = 'absolute';
-            newButton.style.left = `${Math.random() * 80 + 10}%`;
-            newButton.style.top = `${Math.random() * 80 + 10}%`;
-            newButton.style.transform = 'translate(-50%, -50%)';
-            newButton.style.fontSize = `${1.2 - buttonCounter * 0.1}rem`;
-            newButton.style.padding = `${1 - buttonCounter * 0.1}rem ${2 - buttonCounter * 0.2}rem`;
-
-            // Dodanie obsługi kliknięcia dla nowego przycisku
-            newButton.addEventListener('click', () => {
-                buttonCounter++;
-                const newerButton = newButton.cloneNode(true);
-                newerButton.style.left = `${Math.random() * 80 + 10}%`;
-                newerButton.style.top = `${Math.random() * 80 + 10}%`;
-                newerButton.style.fontSize = `${1.2 - buttonCounter * 0.1}rem`;
-                newerButton.style.padding = `${1 - buttonCounter * 0.1}rem ${2 - buttonCounter * 0.2}rem`;
-                container.appendChild(newerButton);
+            initButtonMovement(button);
+            
+            button.addEventListener('click', () => {
+                if (text === 'Nie' || text === 'Na pewno?') {
+                    const newX = Math.random() * (window.innerWidth - 100) + 50;
+                    const newY = Math.random() * (window.innerHeight - 100) + 50;
+                    createEscapeButton('Na pewno?', newX, newY);
+                    buttonCounter++;
+                    
+                    button.style.padding = `${1 - buttonCounter * 0.1}rem ${2 - buttonCounter * 0.2}rem`;
+                    button.style.fontSize = `${1.2 - buttonCounter * 0.1}rem`;
+                }
             });
+            
+            document.body.appendChild(button);
+            return button;
+        }
 
-            container.appendChild(newButton);
+        function initButtonMovement(button) {
+            let posX = parseFloat(button.style.left);
+            let posY = parseFloat(button.style.top);
+            let velocityX = 0;
+            let velocityY = 0;
+            let isDragging = false;
+
+            const physics = {
+                friction: 0.92,
+                bounce: 0.8,
+                pushForce: 3.0 + buttonCounter * 0.5,
+                autoMove: 0.8 + buttonCounter * 0.2
+            };
+
+            button.ontouchstart = (e) => {
+                e.preventDefault();
+                isDragging = true;
+                if(navigator.vibrate) navigator.vibrate(30);
+            };
+
+            button.ontouchmove = (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+                
+                const touch = e.touches[0];
+                const newX = touch.clientX - button.offsetWidth/2;
+                const newY = touch.clientY - button.offsetHeight/2;
+
+                velocityX = (newX - posX) * physics.pushForce;
+                velocityY = (newY - posY) * physics.pushForce;
+
+                posX = newX;
+                posY = newY;
+
+                button.style.left = `${posX}px`;
+                button.style.top = `${posY}px`;
+            };
+
+            button.ontouchend = () => {
+                isDragging = false;
+                applyPhysics();
+            };
+
+            function applyPhysics() {
+                if (Math.abs(velocityX) < 0.1 && Math.abs(velocityY) < 0.1) return;
+
+                posX += velocityX;
+                posY += velocityY;
+
+                const padding = 20;
+                const maxX = window.innerWidth - button.offsetWidth - padding;
+                const maxY = window.innerHeight - button.offsetHeight - padding;
+
+                if (posX < padding) {
+                    posX = padding;
+                    velocityX *= -physics.bounce;
+                }
+                if (posX > maxX) {
+                    posX = maxX;
+                    velocityX *= -physics.bounce;
+                }
+                if (posY < padding) {
+                    posY = padding;
+                    velocityY *= -physics.bounce;
+                }
+                if (posY > maxY) {
+                    posY = maxY;
+                    velocityY *= -physics.bounce;
+                }
+
+                button.style.left = `${posX}px`;
+                button.style.top = `${posY}px`;
+
+                velocityX *= physics.friction;
+                velocityY *= physics.friction;
+
+                requestAnimationFrame(applyPhysics);
+            }
+
+            setInterval(() => {
+                if (isDragging) return;
+                velocityX += (Math.random() - 0.5) * physics.autoMove;
+                velocityY += (Math.random() - 0.5) * physics.autoMove;
+            }, 100);
+        }
+
+        function showRomanticText() {
+            const textElement = document.getElementById('romanticText');
+            let lineIndex = 0;
+
+            const showNextLine = () => {
+                if (lineIndex < romanticLines.length) {
+                    textElement.textContent = romanticLines[lineIndex];
+                    textElement.style.opacity = 1;
+                    lineIndex++;
+
+                    setTimeout(() => {
+                        textElement.style.opacity = 0;
+                    }, 3000);
+
+                    setTimeout(showNextLine, 4000);
+                }
+            };
+
+            showNextLine();
+        }
+
+        function startSunrise() {
+            if (animationRunning) return;
+            animationRunning = true;
+            
+            const sun = document.createElement('div');
+            sun.id = 'sun';
+            document.body.appendChild(sun);
+            
+            setTimeout(() => {
+                document.body.style.background = "var(--sunrise)";
+                sun.style.transform = "translateY(-120vh)";
+                document.getElementById('message').style.opacity = '1';
+                showRomanticText();
+            }, 50);
+            
+            createParticles();
+            document.getElementById('startButton').remove();
+
+            setTimeout(() => {
+                document.body.innerHTML = `
+                    <div class="container" style="background:var(--day)">
+                        <div class="sunflower">🌻</div>
+                        <h1 style="color:#ff6b6b; font-size:2rem; text-align:center; padding:0 20px">
+                            Zuziu, czy zostaniesz moją Walentynką? 🌻
+                        </h1>
+                        <div style="margin-top:2rem; position:relative; height:200px">
+                            <button id="przyciskTak" 
+                                style="background:#ff6b6b; color:white; padding:1.5rem 3rem;
+                                       font-size:1.4rem; border:none; border-radius:30px;
+                                       cursor:pointer; box-shadow:0 5px 15px rgba(255,107,107,0.3);
+                                       position: absolute; left: 50%; transform: translateX(-50%);">
+                                Tak! 🌻
+                            </button>
+                            <button id="przyciskNie" class="escape-button" style="left: 30%; top: 70%;">
+                                Nie
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                const nieButton = document.getElementById('przyciskNie');
+                initButtonMovement(nieButton);
+                nieButton.addEventListener('click', () => {
+                    const newX = Math.random() * (window.innerWidth - 100) + 50;
+                    const newY = Math.random() * (window.innerHeight - 100) + 50;
+                    createEscapeButton('Na pewno?', newX, newY);
+                });
+
+                document.getElementById('przyciskTak').addEventListener('click', () => {
+                    clearInterval(particlesInterval);
+                    document.body.innerHTML = `
+                        <div class="final-screen">
+                            <div class="sunflower">🌻</div>
+                            <h1 style="color:#ff6b6b; font-size:2rem; text-align:center">
+                                Jesteś najlepszą Walentynką! 💘<br>
+                                Kocham Cię! 🌻
+                            </h1>
+                            <div style="margin-top:2rem; font-size:1.5rem">
+                                🌻💖🌻😘🌻❤️🌻
+                            </div>
+                        </div>
+                    `;
+                });
+                
+            }, 18000);
+        }
+
+        window.addEventListener('load', () => {
+            const startButton = document.getElementById('startButton');
+            startButton.style.opacity = '1';
+            startButton.style.transform = 'translateY(0)';
+            startButton.addEventListener('click', startSunrise);
         });
-
-        // Animacja wschodu słońca
-        setTimeout(() => {
-            document.body.style.background = "var(--sunrise)";
-            document.getElementById('message').style.opacity = '1';
-            const sun = document.getElementById('sun');
-            sun.style.transform = "translateY(-120vh)";
-        }, 500);
     </script>
 </body>
 </html>
