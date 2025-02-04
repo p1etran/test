@@ -1,9 +1,10 @@
+ten kod ponizej chyba dzialal, sprawdz:
 <!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Walentynki dla Zuzi 🌻</title>
+    <title>Walentynki dla Zuzi 💖</title>
     <style>
         :root {
             --night: #1a3657;
@@ -142,17 +143,6 @@
             overflow: auto;
         }
 
-        . {
-            font-size: 4rem;
-            margin: 20px;
-            animation: rotate 5s infinite linear;
-        }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
@@ -162,10 +152,10 @@
 </head>
 <body>
     <div class="container">
-        <button class="start-button" id="startButton">Rozpocznij Naszą Historię 🌻</button>
+        <button class="start-button" id="startButton">Rozpocznij Naszą Historię 🌅</button>
         <div class="message" id="message">
-            <h2>Każdy dzień z Tobą to nowy powód do szczęścia... 🌻</h2>
-            <p>Patrz jak nasza miłość rozkwita razem ze wschodem słońca</p>
+            <h2>Każdy świt z Tobą to nowy rozdział miłości... 📖</h2>
+            <p>Patrz jak nasza historia rozkwita razem ze wschodem słońca 🌸</p>
         </div>
         <div class="romantic-text" id="romanticText"></div>
     </div>
@@ -176,21 +166,21 @@
         let buttonCounter = 0;
 
         const romanticLines = [
-            "Dzień dobry, moje słońce 🌻",
-            "Zastanawiałem się, jak zacząć ten dzień...",
-            "I zrozumiałem, że najlepszym początkiem jesteś Ty",
-            "Twój uśmiech rozświetla mój świat bardziej niż słońce",
-            "Dziś, gdy świat budzi się do życia...",
-            "Chcę Ci powiedzieć coś ważnego",
-            "Jesteś najpiękniejszym słonecznikiem w moim życiu",
-            "Który zawsze zwraca się w stronę światła",
-            "I sprawia, że każdy dzień jest wyjątkowy",
-            "Gotowy na moje pytanie? 😊"
+            "Dzień dobry, kochanie. 💖",
+            "Zastanawiałem się ostatnio, jak bardzo jestem szczęśliwy, że jesteś ze mną.",
+            "Każdy poranek z Tobą to nowy powód, by się uśmiechać.",
+            "Pamiętasz nasze pierwsze spotkanie? To był jeden z najlepszych dni w moim życiu.",
+            "Dziś, gdy słońce wstaje, myślę o tym, jak wiele radości mi dajesz.",
+            "Cieszę się, że mogę być częścią Twojego życia i dzielić z Tobą te małe, codzienne chwile.",
+            "Dziękuję, że jesteś taka, jaka jesteś – wyjątkowa, pełna ciepła i uśmiechu.",
+            "Kocham Cię za to, jak potrafisz rozjaśnić nawet najciemniejszy dzień.",
+            "Dziś i zawsze – jesteś moim słońcem. 🌞",
+            "A teraz... mam dla Ciebie małe pytanie. 😊"
         ];
 
         function createParticles() {
             particlesInterval = setInterval(() => {
-                const types = ['🌻', '💖', '✨', '🌸'];
+                const types = ['💖', '🌻', '✨', '🌸'];
                 const particle = document.createElement('div');
                 particle.className = 'particle';
                 particle.style.left = Math.random() * 100 + 'vw';
@@ -207,8 +197,10 @@
             button.style.left = `${x}px`;
             button.style.top = `${y}px`;
             
+            // Add movement handler
             initButtonMovement(button);
             
+            // Add click handler
             button.addEventListener('click', () => {
                 if (text === 'Nie' || text === 'Na pewno?') {
                     const newX = Math.random() * (window.innerWidth - 100) + 50;
@@ -216,6 +208,7 @@
                     createEscapeButton('Na pewno?', newX, newY);
                     buttonCounter++;
                     
+                    // Make button smaller and faster
                     button.style.padding = `${1 - buttonCounter * 0.1}rem ${2 - buttonCounter * 0.2}rem`;
                     button.style.fontSize = `${1.2 - buttonCounter * 0.1}rem`;
                 }
@@ -321,10 +314,12 @@
                     textElement.style.opacity = 1;
                     lineIndex++;
 
+                    // Fade out after 3 seconds
                     setTimeout(() => {
                         textElement.style.opacity = 0;
                     }, 3000);
 
+                    // Show next line after 4 seconds
                     setTimeout(showNextLine, 4000);
                 }
             };
@@ -353,9 +348,9 @@
             setTimeout(() => {
                 document.body.innerHTML = `
                     <div class="container" style="background:var(--day)">
-                        <div class="">💘🌻💘</div>
+                        <div style="font-size:4rem; margin-bottom:1rem">🌻💘</div>
                         <h1 style="color:#ff6b6b; font-size:2rem; text-align:center; padding:0 20px">
-                            Zuziu, czy zostaniesz moją Walentynką? 💝
+                            Zuziu, czy napiszesz ze mną kolejny rozdział? 📖
                         </h1>
                         <div style="margin-top:2rem; position:relative; height:200px">
                             <button id="przyciskTak" 
@@ -363,34 +358,35 @@
                                        font-size:1.4rem; border:none; border-radius:30px;
                                        cursor:pointer; box-shadow:0 5px 15px rgba(255,107,107,0.3);
                                        position: absolute; left: 50%; transform: translateX(-50%);">
-                                Tak! 💘
+                                Tak! Piszmy dalej! 💞
                             </button>
-                            <button id="przyciskNie" style="left: 30%; top: 70%;">
-                                Nie 😕
+                            <button id="przyciskNie" class="escape-button" style="left: 30%; top: 70%;">
+                                Nie
                             </button>
                         </div>
                     </div>
                 `;
 
+                // Add "Nie" button functionality
                 const nieButton = document.getElementById('przyciskNie');
                 initButtonMovement(nieButton);
                 nieButton.addEventListener('click', () => {
                     const newX = Math.random() * (window.innerWidth - 100) + 50;
                     const newY = Math.random() * (window.innerHeight - 100) + 50;
-                    createEscapeButton('Na pewno? 👀', newX, newY);
+                    createEscapeButton('Na pewno?', newX, newY);
                 });
 
                 document.getElementById('przyciskTak').addEventListener('click', () => {
                     clearInterval(particlesInterval);
                     document.body.innerHTML = `
                         <div class="final-screen">
-                            <div class="sunflower">🐭</div>
+                            <div style="font-size:4rem">📖💖🌻</div>
                             <h1 style="color:#ff6b6b; font-size:2rem; text-align:center">
-                                Jesteś najlepszą Walentynką! 💘<br>
-                                Love u babe! 
+                                Nasza historia trwa...<br>
+                                Kocham Cię, Zuziu! 💘
                             </h1>
                             <div style="margin-top:2rem; font-size:1.5rem">
-                                🌻💖🌻😘🌻❤️🌻
+                                😘❤️🌹🎉💍🌸💐🎁🍫
                             </div>
                         </div>
                     `;
