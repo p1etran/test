@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Walentynki dla Zuzi 💖</title>
+    <title>Walentynki dla Zuzi 🌻</title>
     <style>
         :root {
             --night: #1a3657;
@@ -62,6 +62,21 @@
             transition: opacity 3s;
             padding: 0 20px;
             z-index: 2;
+        }
+
+        .romantic-text {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            color: white;
+            font-size: 1.4rem;
+            line-height: 1.6;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
         }
 
         .particle {
@@ -127,6 +142,17 @@
             overflow: auto;
         }
 
+        . {
+            font-size: 4rem;
+            margin: 20px;
+            animation: rotate 5s infinite linear;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
@@ -136,11 +162,12 @@
 </head>
 <body>
     <div class="container">
-        <button class="start-button" id="startButton">Rozpocznij Naszą Historię 🌅</button>
+        <button class="start-button" id="startButton">Rozpocznij Naszą Historię 🌻</button>
         <div class="message" id="message">
-            <h2>Każdy świt z Tobą to nowy rozdział miłości... 📖</h2>
-            <p>Patrz jak nasza historia rozkwita razem ze wschodem słońca 🌸</p>
+            <h2>Każdy dzień z Tobą to nowy powód do szczęścia... 🌻</h2>
+            <p>Patrz jak nasza miłość rozkwita razem ze wschodem słońca</p>
         </div>
+        <div class="romantic-text" id="romanticText"></div>
     </div>
 
     <script>
@@ -148,9 +175,22 @@
         let particlesInterval;
         let buttonCounter = 0;
 
+        const romanticLines = [
+            "Dzień dobry, moje słońce 🌻",
+            "Zastanawiałem się, jak zacząć ten dzień...",
+            "I zrozumiałem, że najlepszym początkiem jesteś Ty",
+            "Twój uśmiech rozświetla mój świat bardziej niż słońce",
+            "Dziś, gdy świat budzi się do życia...",
+            "Chcę Ci powiedzieć coś ważnego",
+            "Jesteś najpiękniejszym słonecznikiem w moim życiu",
+            "Który zawsze zwraca się w stronę światła",
+            "I sprawia, że każdy dzień jest wyjątkowy",
+            "Gotowy na moje pytanie? 😊"
+        ];
+
         function createParticles() {
             particlesInterval = setInterval(() => {
-                const types = ['💖', '🌻', '✨', '🌸'];
+                const types = ['🌻', '💖', '✨', '🌸'];
                 const particle = document.createElement('div');
                 particle.className = 'particle';
                 particle.style.left = Math.random() * 100 + 'vw';
@@ -167,10 +207,8 @@
             button.style.left = `${x}px`;
             button.style.top = `${y}px`;
             
-            // Add movement handler
             initButtonMovement(button);
             
-            // Add click handler
             button.addEventListener('click', () => {
                 if (text === 'Nie' || text === 'Na pewno?') {
                     const newX = Math.random() * (window.innerWidth - 100) + 50;
@@ -178,7 +216,6 @@
                     createEscapeButton('Na pewno?', newX, newY);
                     buttonCounter++;
                     
-                    // Make button smaller and faster
                     button.style.padding = `${1 - buttonCounter * 0.1}rem ${2 - buttonCounter * 0.2}rem`;
                     button.style.fontSize = `${1.2 - buttonCounter * 0.1}rem`;
                 }
@@ -274,22 +311,25 @@
             }, 100);
         }
 
-        function showFinalScreen() {
-            const finalHTML = `
-                <div class="final-screen">
-                    <div style="font-size:4rem">📖💖🌻</div>
-                    <h1 style="color:#ff6b6b; font-size:2rem; text-align:center; padding:0 20px">
-                        Nasza historia trwa...<br>
-                        Kocham Cię, Zuziu! 💘
-                    </h1>
-                    <div style="margin-top:2rem; font-size:1.5rem">
-                        😘❤️🌹🎉💍🌸💐🎁🍫
-                    </div>
-                </div>
-            `;
-            
-            document.body.innerHTML = finalHTML;
-            window.scrollTo(0, 0);
+        function showRomanticText() {
+            const textElement = document.getElementById('romanticText');
+            let lineIndex = 0;
+
+            const showNextLine = () => {
+                if (lineIndex < romanticLines.length) {
+                    textElement.textContent = romanticLines[lineIndex];
+                    textElement.style.opacity = 1;
+                    lineIndex++;
+
+                    setTimeout(() => {
+                        textElement.style.opacity = 0;
+                    }, 3000);
+
+                    setTimeout(showNextLine, 4000);
+                }
+            };
+
+            showNextLine();
         }
 
         function startSunrise() {
@@ -304,6 +344,7 @@
                 document.body.style.background = "var(--sunrise)";
                 sun.style.transform = "translateY(-120vh)";
                 document.getElementById('message').style.opacity = '1';
+                showRomanticText();
             }, 50);
             
             createParticles();
@@ -312,9 +353,9 @@
             setTimeout(() => {
                 document.body.innerHTML = `
                     <div class="container" style="background:var(--day)">
-                        <div style="font-size:4rem; margin-bottom:1rem">🌻💘</div>
+                        <div class="">💘🌻💘</div>
                         <h1 style="color:#ff6b6b; font-size:2rem; text-align:center; padding:0 20px">
-                            Zuziu, czy napiszesz ze mną kolejny rozdział? 📖
+                            Zuziu, czy zostaniesz moją Walentynką? 💝
                         </h1>
                         <div style="margin-top:2rem; position:relative; height:200px">
                             <button id="przyciskTak" 
@@ -322,20 +363,37 @@
                                        font-size:1.4rem; border:none; border-radius:30px;
                                        cursor:pointer; box-shadow:0 5px 15px rgba(255,107,107,0.3);
                                        position: absolute; left: 50%; transform: translateX(-50%);">
-                                Tak! Piszmy dalej! 💞
+                                Tak! 💘
+                            </button>
+                            <button id="przyciskNie" class="escape-button" style="left: 30%; top: 70%;">
+                                Nie 😕
                             </button>
                         </div>
                     </div>
                 `;
 
-                // Create initial "Nie" button
-                const initialX = window.innerWidth * 0.3;
-                const initialY = window.innerHeight * 0.7;
-                createEscapeButton('Nie', initialX, initialY);
-                
+                const nieButton = document.getElementById('przyciskNie');
+                initButtonMovement(nieButton);
+                nieButton.addEventListener('click', () => {
+                    const newX = Math.random() * (window.innerWidth - 100) + 50;
+                    const newY = Math.random() * (window.innerHeight - 100) + 50;
+                    createEscapeButton('Na pewno? 👀', newX, newY);
+                });
+
                 document.getElementById('przyciskTak').addEventListener('click', () => {
                     clearInterval(particlesInterval);
-                    showFinalScreen();
+                    document.body.innerHTML = `
+                        <div class="final-screen">
+                            <div class="sunflower">🐭</div>
+                            <h1 style="color:#ff6b6b; font-size:2rem; text-align:center">
+                                Jesteś najlepszą Walentynką! 💘<br>
+                                Love u babe! 
+                            </h1>
+                            <div style="margin-top:2rem; font-size:1.5rem">
+                                🌻💖🌻😘🌻❤️🌻
+                            </div>
+                        </div>
+                    `;
                 });
                 
             }, 18000);
