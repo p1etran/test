@@ -94,34 +94,21 @@
             transition: all 2s ease;
         }
 
-        .escape-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 10000;
-        }
-
         .escape-button {
             position: absolute;
-            padding: 1.5rem 2.5rem;
-            font-size: 1.4rem;
+            padding: 1.2rem 2rem;
+            font-size: 1.2rem;
             background: #ff4444;
-            color: white !important;
-            border: 3px solid white;
-            border-radius: 30px;
+            color: white;
+            border: 2px solid white;
+            border-radius: 20px;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
             touch-action: none;
             user-select: none;
             transform: translate(-50%, -50%);
-            left: 50%;
-            top: 60%;
-            opacity: 1 !important;
-            pointer-events: all;
-            transition: transform 0.1s linear;
+            transition: all 0.1s ease;
+            z-index: 10000;
         }
 
         .final-screen {
@@ -159,6 +146,7 @@
     <script>
         let animationRunning = false;
         let particlesInterval;
+        let buttonCounter = 0;
 
         function createParticles() {
             particlesInterval = setInterval(() => {
@@ -172,41 +160,48 @@
             }, 250);
         }
 
-        function createEscapeButton() {
-            const container = document.createElement('div');
-            container.className = 'escape-container';
-            
+        function createEscapeButton(text, x, y) {
             const button = document.createElement('button');
             button.className = 'escape-button';
-            button.id = 'escapeButton';
-            button.textContent = 'Zobaczmy jeszcze raz... 🔄';
+            button.textContent = text;
+            button.style.left = `${x}px`;
+            button.style.top = `${y}px`;
             
-            container.appendChild(button);
-            document.body.appendChild(container);
-            
+            // Add movement handler
             initButtonMovement(button);
+            
+            // Add click handler
+            button.addEventListener('click', () => {
+                if (text === 'Nie' || text === 'Na pewno?') {
+                    const newX = Math.random() * (window.innerWidth - 100) + 50;
+                    const newY = Math.random() * (window.innerHeight - 100) + 50;
+                    createEscapeButton('Na pewno?', newX, newY);
+                    buttonCounter++;
+                    
+                    // Make button smaller and faster
+                    button.style.padding = `${1 - buttonCounter * 0.1}rem ${2 - buttonCounter * 0.2}rem`;
+                    button.style.fontSize = `${1.2 - buttonCounter * 0.1}rem`;
+                }
+            });
+            
+            document.body.appendChild(button);
+            return button;
         }
 
         function initButtonMovement(button) {
-            let posX = window.innerWidth / 2;
-            let posY = window.innerHeight / 2 + 100;
+            let posX = parseFloat(button.style.left);
+            let posY = parseFloat(button.style.top);
             let velocityX = 0;
             let velocityY = 0;
             let isDragging = false;
 
-            // Set initial position
-            button.style.left = `${posX}px`;
-            button.style.top = `${posY}px`;
-
-            // Enhanced physics parameters
             const physics = {
                 friction: 0.92,
                 bounce: 0.8,
-                pushForce: 3.0,
-                autoMove: 0.8
+                pushForce: 3.0 + buttonCounter * 0.5,
+                autoMove: 0.8 + buttonCounter * 0.2
             };
 
-            // Touch handlers
             button.ontouchstart = (e) => {
                 e.preventDefault();
                 isDragging = true;
@@ -236,14 +231,12 @@
                 applyPhysics();
             };
 
-            // Enhanced physics engine
             function applyPhysics() {
                 if (Math.abs(velocityX) < 0.1 && Math.abs(velocityY) < 0.1) return;
 
                 posX += velocityX;
                 posY += velocityY;
 
-                // Screen boundaries with padding
                 const padding = 20;
                 const maxX = window.innerWidth - button.offsetWidth - padding;
                 const maxY = window.innerHeight - button.offsetHeight - padding;
@@ -274,7 +267,6 @@
                 requestAnimationFrame(applyPhysics);
             }
 
-            // Auto-escape system
             setInterval(() => {
                 if (isDragging) return;
                 velocityX += (Math.random() - 0.5) * physics.autoMove;
@@ -297,11 +289,7 @@
             `;
             
             document.body.innerHTML = finalHTML;
-            
-            // Ensure proper scrolling
             window.scrollTo(0, 0);
-            document.documentElement.style.overflow = 'auto';
-            document.body.style.overflow = 'auto';
         }
 
         function startSunrise() {
@@ -340,7 +328,10 @@
                     </div>
                 `;
 
-                createEscapeButton();
+                // Create initial "Nie" button
+                const initialX = window.innerWidth * 0.3;
+                const initialY = window.innerHeight * 0.7;
+                createEscapeButton('Nie', initialX, initialY);
                 
                 document.getElementById('przyciskTak').addEventListener('click', () => {
                     clearInterval(particlesInterval);
