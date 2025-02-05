@@ -1,55 +1,153 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>Walentynki - Czy Zostaniesz Moją Walentynką?</title>
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Walentynki dla Zuzi 🌻</title>
   <style>
-    /* Basic reset and mobile-friendly style */
+    :root {
+      --night: #1a3657;
+      --sunrise: linear-gradient(to bottom, #ff9966, #ff5e62);
+      --day: #fff3e0;
+    }
+
     * {
-      margin: 0; padding: 0; box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent; /* remove tap highlight on iOS */
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #ffe0e8; 
-      min-height: 100vh;
-      position: relative;
+      margin: 0;
+      height: 100vh;
       overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--night);
+      transition: background 20s linear;
     }
+
     .container {
-      text-align: center;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       padding: 20px;
+      position: relative;
+    }
+
+    /* The "sun" that rises */
+    #sun {
+      width: 80px;
+      height: 80px;
+      background: #ffdd00;
+      border-radius: 50%;
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 40px #ffdd0080;
+      transition: all 20s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1;
+    }
+
+    /* Intro text that fades in */
+    .message {
+      color: white;
+      text-align: center;
+      position: absolute;
+      width: 100%;
+      top: 20%;
+      opacity: 0;
+      transition: opacity 3s;
+      padding: 0 20px;
+      z-index: 2;
+    }
+
+    /* The line-by-line romantic text */
+    .romantic-text {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
       max-width: 600px;
-      margin: 0 auto;
-      margin-top: 10vh;
+      text-align: center;
+      color: white;
+      font-size: 1.4rem;
+      line-height: 1.6;
+      opacity: 0;
+      transition: opacity 2s ease-in-out;
     }
-    h1 {
-      font-size: 1.8rem;
-      color: #d81b60;
-      margin-bottom: 2rem;
-      padding: 0 10px;
-      line-height: 1.4;
+
+    /* Floating hearts/flowers (particles) */
+    .particle {
+      position: fixed;
+      font-size: 2rem;
+      animation: float 3s linear forwards;
+      pointer-events: none;
+      z-index: 2;
     }
-    .btn {
-      font-size: 1.3rem;
-      padding: 1rem 1.6rem;
+    @keyframes float {
+      0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* Initial "Rozpocznij" button */
+    .start-button {
+      padding: 1.2rem 2.5rem;
+      font-size: 1.4rem;
       border: none;
       border-radius: 30px;
       cursor: pointer;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      position: absolute;
+      bottom: 30px;
+      z-index: 9999;
+      background: #ff6b6b;
       color: white;
-      display: inline-block;
-      margin: 0.5rem 1rem;
+      box-shadow: 0 5px 15px rgba(255,107,107,0.3);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 2s ease;
     }
-    .btn-yes {
-      background: #ff6b6b; /* nice pink/red */
+
+    /* Final screen after sunrise and question */
+    .final-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--day);
+      padding: 20px;
+      text-align: center;
+      overflow: auto;
     }
-    .btn-no {
-      background: #ff4444;
+
+    .sunflower {
+      font-size: 4rem;
+      margin: 20px;
+      animation: rotate 5s infinite linear;
     }
-    /* For the dynamically spawned buttons */
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* The "Na pewno?" style for newly spawned buttons */
     .pop-btn {
       position: absolute;
       background: #fa8072;
@@ -64,68 +162,217 @@
     }
   </style>
 </head>
+
 <body>
+  <div class="container">
+    <button class="start-button" id="startButton">Rozpocznij Naszą Historię 🌻</button>
+    <div class="message" id="message">
+      <h2>Każdy dzień z Tobą to nowy powód do szczęścia... 🌻</h2>
+      <p>Patrz jak nasza miłość rozkwita razem ze wschodem słońca</p>
+    </div>
+    <div class="romantic-text" id="romanticText"></div>
+  </div>
 
-<div class="container">
-  <h1>Zuziu, czy zostaniesz moją Walentynką? ❤️</h1>
-  <button id="btnTak" class="btn btn-yes">Tak!</button>
-  <button id="btnNie" class="btn btn-no">Nie</button>
-</div>
+  <script>
+    /*******************************************************
+     * 1) Data & Variables
+     *******************************************************/
+    let animationRunning = false;
+    let particlesInterval;
+    const romanticLines = [
+      "Dzień dobry, moje słońce 🌻",
+      "Zastanawiałem się, jak zacząć ten dzień...",
+      "I zrozumiałem, że najlepszym początkiem jesteś Ty",
+      "Twój uśmiech rozświetla mój świat bardziej niż słońce",
+      "Dziś, gdy świat budzi się do życia...",
+      "Chcę Ci powiedzieć coś ważnego",
+      "Jesteś najpiękniejszym słonecznikiem w moim życiu",
+      "Który zawsze zwraca się w stronę światła",
+      "I sprawia, że każdy dzień jest wyjątkowy",
+      "Gotowy na moje pytanie? 😊"
+    ];
 
-<script>
-  // Utility to clamp random positions so they're on-screen
-  function getRandomPosition(btnWidth, btnHeight) {
-    // Some padding from edges
-    const padding = 20;
-    const maxX = window.innerWidth - btnWidth - padding;
-    const maxY = window.innerHeight - btnHeight - padding;
-    
-    const x = Math.random() * (maxX - padding) + padding;
-    const y = Math.random() * (maxY - padding) + padding;
-    
-    return { x, y };
-  }
+    /*******************************************************
+     * 2) Particles (Hearts/Flowers)
+     *******************************************************/
+    function createParticles() {
+      particlesInterval = setInterval(() => {
+        const types = ['🌻', '💖', '✨', '🌸'];
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + 'vw';
+        particle.textContent = types[Math.floor(Math.random() * types.length)];
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 3000);
+      }, 250);
+    }
 
-  // Spawns a "Na pewno?" button at a random position
-  function spawnNaPewno() {
-    const btn = document.createElement('button');
-    btn.classList.add('pop-btn');
-    btn.textContent = 'Na pewno?';
+    /*******************************************************
+     * 3) Romantic text, line by line
+     *******************************************************/
+    function showRomanticText() {
+      const textElement = document.getElementById('romanticText');
+      let lineIndex = 0;
 
-    // Temporarily put it off-screen to measure its width/height
-    btn.style.left = '-9999px';
-    btn.style.top = '-9999px';
-    document.body.appendChild(btn);
+      const showNextLine = () => {
+        if (lineIndex < romanticLines.length) {
+          textElement.textContent = romanticLines[lineIndex];
+          textElement.style.opacity = '1';
+          lineIndex++;
 
-    // Now measure its actual size
-    const rect = btn.getBoundingClientRect();
-    const { x, y } = getRandomPosition(rect.width, rect.height);
+          // fade out line after 3s
+          setTimeout(() => {
+            textElement.style.opacity = '0';
+          }, 3000);
 
-    // Position it within the viewport
-    btn.style.left = x + 'px';
-    btn.style.top = y + 'px';
+          // show next line after 4s
+          setTimeout(showNextLine, 4000);
+        }
+      };
+      showNextLine();
+    }
 
-    // Each time "Na pewno?" is tapped => spawn another
-    btn.addEventListener('click', function (e) {
-      e.stopPropagation(); // so it won't bubble up
-      spawnNaPewno();
+    /*******************************************************
+     * 4) Sunrise Animation
+     *******************************************************/
+    function startSunrise() {
+      if (animationRunning) return;
+      animationRunning = true;
+
+      // Create the sun element
+      const sun = document.createElement('div');
+      sun.id = 'sun';
+      document.body.appendChild(sun);
+
+      // Start sunrise effect
+      setTimeout(() => {
+        document.body.style.background = "var(--sunrise)";
+        sun.style.transform = "translateY(-120vh)";
+        document.getElementById('message').style.opacity = '1';
+        showRomanticText();
+      }, 50);
+
+      // Start floating hearts/flowers
+      createParticles();
+
+      // Remove the start button
+      document.getElementById('startButton').remove();
+
+      // After ~18s, switch to final question screen
+      setTimeout(() => {
+        showFinalQuestion();
+      }, 18000);
+    }
+
+    /*******************************************************
+     * 5) Final Question Screen
+     *******************************************************/
+    function showFinalQuestion() {
+      clearInterval(particlesInterval);
+
+      document.body.innerHTML = `
+        <div class="container" style="background:var(--day)">
+          <div class="sunflower">🌻</div>
+          <h1 style="color:#ff6b6b; font-size:2rem; text-align:center; padding:0 20px">
+            Zuziu, czy zostaniesz moją Walentynką? 🌻
+          </h1>
+          <div style="margin-top:2rem; position:relative; height:200px; text-align:center;">
+            <button id="przyciskTak"
+              style="
+                background:#ff6b6b; color:white; padding:1.5rem 3rem; font-size:1.4rem;
+                border:none; border-radius:30px; cursor:pointer;
+                box-shadow:0 5px 15px rgba(255,107,107,0.3);
+                margin-right:40px;
+              ">
+              Tak! 🌻
+            </button>
+            <button id="przyciskNie"
+              style="
+                background:#ff4444; color:white; padding:1.5rem 2rem; font-size:1.4rem;
+                border:none; border-radius:30px; cursor:pointer;
+                box-shadow:0 5px 15px rgba(255,68,68,0.3);
+              ">
+              Nie
+            </button>
+          </div>
+        </div>
+      `;
+
+      // Hook up the final screen buttons
+      const nieButton = document.getElementById('przyciskNie');
+      const takButton = document.getElementById('przyciskTak');
+
+      takButton.addEventListener('click', showSuccessScreen);
+      nieButton.addEventListener('click', spawnNaPewno);
+    }
+
+    /*******************************************************
+     * 6) "Na pewno?" Spawning Logic
+     *    Each time "Nie" is pressed, we spawn one "Na pewno?"
+     *    Tapping any "Na pewno?" spawns another, etc.
+     *******************************************************/
+    function spawnNaPewno() {
+      // Create a new button
+      const newBtn = document.createElement('button');
+      newBtn.className = 'pop-btn';
+      newBtn.textContent = 'Na pewno?';
+
+      // Place it offscreen to measure width/height
+      newBtn.style.left = '-9999px';
+      newBtn.style.top = '-9999px';
+      document.body.appendChild(newBtn);
+
+      // measure
+      const rect = newBtn.getBoundingClientRect();
+      // position it randomly within the viewport
+      const { x, y } = getRandomPosition(rect.width, rect.height);
+      newBtn.style.left = x + 'px';
+      newBtn.style.top = y + 'px';
+
+      // Each time "Na pewno?" is clicked => spawn a new one again
+      newBtn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        spawnNaPewno();
+      });
+    }
+
+    function getRandomPosition(btnWidth, btnHeight) {
+      const padding = 20;
+      const maxX = window.innerWidth - btnWidth - padding;
+      const maxY = window.innerHeight - btnHeight - padding;
+      const x = Math.random() * (maxX - padding) + padding;
+      const y = Math.random() * (maxY - padding) + padding;
+      return { x, y };
+    }
+
+    /*******************************************************
+     * 7) If "Tak!" is clicked => final screen
+     *******************************************************/
+    function showSuccessScreen() {
+      document.body.innerHTML = `
+        <div class="final-screen">
+          <div class="sunflower">🌻</div>
+          <h1 style="color:#ff6b6b; font-size:2rem; text-align:center">
+            Jesteś najlepszą Walentynką! 💘<br>
+            Kocham Cię! 🌻
+          </h1>
+          <div style="margin-top:2rem; font-size:1.5rem">
+            🌻💖🌻😘🌻❤️🌻
+          </div>
+        </div>
+      `;
+    }
+
+    /*******************************************************
+     * 8) Start Button / Page Load
+     *******************************************************/
+    window.addEventListener('load', () => {
+      const startButton = document.getElementById('startButton');
+      // Make it fade in
+      startButton.style.opacity = '1';
+      startButton.style.transform = 'translateY(0)';
+      startButton.addEventListener('click', startSunrise);
     });
-  }
-
-  // MAIN SETUP
-  const btnTak = document.getElementById('btnTak');
-  const btnNie = document.getElementById('btnNie');
-
-  btnTak.addEventListener('click', () => {
-    alert('Kocham Cię! ❤️\nWesołych Walentynek!');
-  });
-
-  // When "Nie" is tapped => spawn 1 new "Na pewno?" button
-  btnNie.addEventListener('click', (e) => {
-    e.stopPropagation();
-    spawnNaPewno();
-  });
-</script>
-
+  </script>
 </body>
 </html>
