@@ -15,10 +15,16 @@
 
   <style>
     :root {
-      --night: #1a3657;
-      --sunrise: linear-gradient(to bottom, #ff9966, #ff5e62);
-      --day: #fff3e0;
-    }
+  /* night: deeper navy purple */
+  --night: #0b132b;
+
+  /* sunrise: peach to pale orange */
+  --sunrise: linear-gradient(to bottom, #fda085, #f6d365);
+
+  /* day: a soft cream color */
+  --day: #fff8e5;
+}
+
     * {
       margin: 0; padding: 0; box-sizing: border-box;
       touch-action: manipulation;
@@ -59,7 +65,7 @@
       left: 50%;
       transform: translateX(-50%);
       box-shadow: 0 0 40px #ffdd0080;
-      transition: all 20s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 35s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 1;
     }
 
