@@ -5,30 +5,33 @@
   <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Walentynki dla Zuzi 🌻</title>
+
+  <!-- 1) Custom Google Font -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+
+  <!-- 2) Confetti Library (CDN) for "Tak!" -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
   <style>
     :root {
       --night: #1a3657;
       --sunrise: linear-gradient(to bottom, #ff9966, #ff5e62);
       --day: #fff3e0;
     }
-
     * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+      margin: 0; padding: 0; box-sizing: border-box;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
     }
-
     body {
       margin: 0;
       height: 100vh;
       overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Poppins', sans-serif; /* Use the new font here */
       background: var(--night);
-      transition: background 20s linear;
+      transition: background 20s linear, opacity 0.5s ease;
     }
-
     .container {
       height: 100vh;
       display: flex;
@@ -40,7 +43,12 @@
       text-align: center;
     }
 
-    /* The "sun" that rises */
+    /* (Optional) fade-out class if you want to transition screens */
+    .fade-out {
+      opacity: 0;
+    }
+
+    /* The rising sun */
     #sun {
       width: 80px;
       height: 80px;
@@ -55,7 +63,6 @@
       z-index: 1;
     }
 
-    /* Intro text that fades in */
     .message {
       color: white;
       position: absolute;
@@ -68,7 +75,7 @@
       line-height: 1.4;
     }
 
-    /* The line-by-line romantic text */
+    /* Typed text area */
     .romantic-text {
       position: absolute;
       top: 35%;
@@ -77,10 +84,10 @@
       width: 90%;
       max-width: 600px;
       color: white;
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       line-height: 1.6;
-      opacity: 0;
-      transition: opacity 2s ease-in-out;
+      opacity: 1; /* We'll manually manage visibility */
+      min-height: 2.5em; /* Reserve space so page doesn't jump */
     }
 
     /* Floating hearts/flowers (particles) */
@@ -102,7 +109,7 @@
       }
     }
 
-    /* Initial "Rozpocznij" button */
+    /* Center "Rozpocznij" button with a pulse animation */
     .start-button {
       padding: 1.2rem 2.5rem;
       font-size: 1.4rem;
@@ -110,14 +117,22 @@
       border-radius: 30px;
       cursor: pointer;
       position: absolute;
-      bottom: 30px;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
       z-index: 9999;
       background: #ff6b6b;
       color: white;
       box-shadow: 0 5px 15px rgba(255,107,107,0.3);
       opacity: 0;
-      transform: translateY(20px);
-      transition: all 2s ease;
+      transition: opacity 2s ease;
+
+      /* Gentle pulse animation */
+      animation: pulse 2.5s infinite;
+    }
+    @keyframes pulse {
+      0%   { transform: translate(-50%, -50%) scale(1); }
+      50%  { transform: translate(-50%, -50%) scale(1.05); }
+      100% { transform: translate(-50%, -50%) scale(1); }
     }
 
     /* Final or question screens */
@@ -134,7 +149,6 @@
       text-align: center;
       overflow: auto;
     }
-
     .sunflower {
       font-size: 4rem;
       margin: 20px auto;
@@ -145,7 +159,7 @@
       to   { transform: rotate(360deg); }
     }
 
-    /* The "Na pewno?" style for newly spawned buttons */
+    /* "Na pewno?" style with a shake animation on creation */
     .pop-btn {
       position: absolute;
       background: #fa8072;
@@ -157,21 +171,49 @@
       cursor: pointer;
       box-shadow: 0 3px 8px rgba(0,0,0,0.2);
       z-index: 9999;
+      animation: shake 0.4s ease-in-out;
+    }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      20% { transform: translateX(-3px); }
+      40% { transform: translateX(3px); }
+      60% { transform: translateX(-3px); }
+      80% { transform: translateX(3px); }
+      100% { transform: translateX(0); }
     }
   </style>
 </head>
 
 <body>
+  <!-- (Optional) Background Music -->
+  <audio id="bgMusic" src="your-audio.mp3" preload="auto"></audio>
+
   <div class="container">
     <button class="start-button" id="startButton">Rozpocznij Naszą Historię 🌻</button>
     <div class="message" id="message">
-      <h2>Każdy dzień z Tobą to nowy powód do szczęścia... 🌻</h2>
+      <h2>Każdy dzień z Tobą to nowy powód do szczęścia...</h2>
       <p>Patrz jak nasza miłość rozkwita razem ze wschodem słońca</p>
     </div>
+    <!-- We'll type text into this next div -->
     <div class="romantic-text" id="romanticText"></div>
   </div>
 
   <script>
+    /*******************************************************
+     * 0) (Optional) Typewriter Helper
+     *******************************************************/
+    function typeText(element, text, speed, callback) {
+      let i = 0;
+      element.textContent = "";
+      const interval = setInterval(() => {
+        element.textContent = text.slice(0, i++);
+        if (i > text.length) {
+          clearInterval(interval);
+          if (callback) callback();
+        }
+      }, speed);
+    }
+
     /*******************************************************
      * 1) Data & Variables
      *******************************************************/
@@ -206,27 +248,30 @@
     }
 
     /*******************************************************
-     * 3) Romantic text, line by line
+     * 3) Show Romantic Text with a Typed Effect
      *******************************************************/
     function showRomanticText() {
       const textElement = document.getElementById('romanticText');
       let lineIndex = 0;
 
-      const showNextLine = () => {
-        if (lineIndex < romanticLines.length) {
-          textElement.textContent = romanticLines[lineIndex];
-          textElement.style.opacity = '1';
-          lineIndex++;
+      function showNextLine() {
+        if (lineIndex >= romanticLines.length) return;
 
-          // Fade out line after 3s
+        // Type the line
+        typeText(textElement, romanticLines[lineIndex], 40, () => {
+          // Pause, then fade out text, then next line
           setTimeout(() => {
             textElement.style.opacity = '0';
-          }, 3000);
+            setTimeout(() => {
+              textElement.textContent = "";
+              textElement.style.opacity = '1';
+              lineIndex++;
+              showNextLine();
+            }, 800); // let the text fade out for ~0.8s
+          }, 2000); // keep line on screen for 2s before fade out
+        });
+      }
 
-          // Show next line after 4s
-          setTimeout(showNextLine, 4000);
-        }
-      };
       showNextLine();
     }
 
@@ -236,6 +281,15 @@
     function startSunrise() {
       if (animationRunning) return;
       animationRunning = true;
+
+      // (Optional) Attempt to play background music
+      const music = document.getElementById('bgMusic');
+      if (music) {
+        music.play().catch(() => {
+          // iOS might block it if not triggered by direct user interaction,
+          // but "click" on button is usually enough
+        });
+      }
 
       // Create the sun element
       const sun = document.createElement('div');
@@ -256,9 +310,14 @@
       // Remove the start button
       document.getElementById('startButton').remove();
 
-      // After ~18s, switch to final question screen
+      // After ~18s, fade out and show final question screen
       setTimeout(() => {
-        showFinalQuestion();
+        // Optional fade-out transition on body
+        document.body.classList.add('fade-out');
+        setTimeout(() => {
+          showFinalQuestion();
+          document.body.classList.remove('fade-out');
+        }, 700); // wait ~0.7s for fade
       }, 18000);
     }
 
@@ -268,7 +327,6 @@
     function showFinalQuestion() {
       clearInterval(particlesInterval);
 
-      // Overwrite body with a new layout
       document.body.innerHTML = `
         <div class="container" style="
           background: var(--day);
@@ -284,7 +342,8 @@
               margin: 10px 20px 0; 
               line-height: 1.3;
             ">
-            Zuziu, czy zostaniesz moją Walentynką? 
+            Zuziu, w tym wyjątkowym dniu...<br/>
+            Czy zostaniesz moją Walentynką?
           </h1>
           <div style="
             margin-top: 30px; 
@@ -314,7 +373,6 @@
         </div>
       `;
 
-      // Hook up the final screen buttons
       const nieButton = document.getElementById('przyciskNie');
       const takButton = document.getElementById('przyciskTak');
 
@@ -326,24 +384,23 @@
      * 6) "Na pewno?" Spawning Logic
      *******************************************************/
     function spawnNaPewno() {
-      // Create a new button
       const newBtn = document.createElement('button');
       newBtn.className = 'pop-btn';
       newBtn.textContent = 'Na pewno? 👀';
 
-      // Place it offscreen to measure width/height
+      // Offscreen to measure width/height
       newBtn.style.left = '-9999px';
       newBtn.style.top = '-9999px';
       document.body.appendChild(newBtn);
 
       // measure
       const rect = newBtn.getBoundingClientRect();
-      // position it randomly within the viewport
+      // random position
       const { x, y } = getRandomPosition(rect.width, rect.height);
       newBtn.style.left = x + 'px';
       newBtn.style.top = y + 'px';
 
-      // Each time "Na pewno?" is clicked => spawn a new one again
+      // clicking any "Na pewno?" spawns another
       newBtn.addEventListener('click', (ev) => {
         ev.stopPropagation();
         spawnNaPewno();
@@ -360,25 +417,49 @@
     }
 
     /*******************************************************
-     * 7) If "Tak!" is clicked => final screen
+     * 7) If "Tak!" is clicked => confetti + final screen
      *******************************************************/
     function showSuccessScreen() {
-      document.body.innerHTML = `
-        <div class="final-screen">
-          <div class="sunflower" style="margin-top:0;">💝🌻💝</div>
-          <h1 style="
-            color:#ff6b6b; 
-            font-size:2rem; 
-            margin: 10px 0 0;
-          ">
-            Jesteś najlepszą Walentynką! 💘<br>
-            Love u babe! 🐭
-          </h1>
-          <div style="margin-top:2rem; font-size:1.5rem">
-            🌻💖🌻😘🌻❤️🌻
+      // 7a) Confetti burst
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+
+      // 7b) Show final screen after short delay
+      setTimeout(() => {
+        document.body.innerHTML = `
+          <div class="final-screen">
+            <div class="sunflower" style="margin-top:0;">💝</div>
+            <h1 style="
+              color:#ff6b6b; 
+              font-size:2rem; 
+              margin: 10px 0 0;
+            ">
+              Jesteś najlepszą Walentynką! 💘<br>
+              Love u babe! 🐭
+            </h1>
+            <div style="margin-top:2rem; font-size:1.5rem">
+              🌻💖🌻😘🌻❤️🌻
+            </div>
+
+            <!-- 7c) Replay Button -->
+            <button onclick="location.reload()" style="
+              margin-top: 2rem; 
+              padding: 0.8rem 1.4rem;
+              border-radius: 10px;
+              background: #ff6b6b; 
+              color: #fff;
+              border: none;
+              cursor: pointer;
+              font-size: 1.1rem;
+            ">
+              Jeszcze raz? ↺
+            </button>
           </div>
-        </div>
-      `;
+        `;
+      }, 1000); // 1s confetti before final screen
     }
 
     /*******************************************************
@@ -386,9 +467,8 @@
      *******************************************************/
     window.addEventListener('load', () => {
       const startButton = document.getElementById('startButton');
-      // Make it fade in
-      startButton.style.opacity = '1';
-      startButton.style.transform = 'translateY(0)';
+      startButton.style.opacity = '1'; // fade in
+      // NB: The .start-button's pulse anim runs automatically
       startButton.addEventListener('click', startSunrise);
     });
   </script>
