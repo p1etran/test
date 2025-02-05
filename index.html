@@ -15,16 +15,13 @@
 
   <style>
     :root {
-  /* night: deeper navy purple */
-  --night: #0b132b;
-
-  /* sunrise: peach to pale orange */
-  --sunrise: linear-gradient(to bottom, #fda085, #f6d365);
-
-  /* day: a soft cream color */
-  --day: #fff8e5;
-}
-
+      /* Night: deeper navy purple */
+      --night: #0b132b;
+      /* Sunrise: peach to pale orange */
+      --sunrise: linear-gradient(to bottom, #fda085, #f6d365);
+      /* Day: a soft cream color */
+      --day: #fff8e5;
+    }
     * {
       margin: 0; padding: 0; box-sizing: border-box;
       touch-action: manipulation;
@@ -34,10 +31,34 @@
       margin: 0;
       height: 100vh;
       overflow: hidden;
-      font-family: 'Poppins', sans-serif; /* Use the new font here */
+      font-family: 'Poppins', sans-serif;
       background: var(--night);
-      transition: background 20s linear, opacity 0.5s ease;
+      transition: background 35s linear, opacity 0.5s ease;
+      position: relative;
     }
+
+    /* (1) A star field using a pseudo-element */
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0; /* full screen */
+      background:
+        radial-gradient(2px 2px at 20% 20%, white 2%, transparent 2%) repeat,
+        radial-gradient(1px 1px at 80% 30%, white 1%, transparent 1%) repeat,
+        radial-gradient(2px 2px at 50% 80%, white 2%, transparent 2%) repeat;
+      background-size: 100px 100px, 150px 150px, 200px 200px; 
+      /* Star layers, can tweak sizes or positions for variety */
+      opacity: 1;
+      pointer-events: none;
+      transition: opacity 3s ease; /* fade stars out at dawn */
+      z-index: 0; /* behind everything */
+    }
+
+    /* We'll fade out the star field when sunrise starts */
+    .stars-fade {
+      opacity: 0 !important;
+    }
+
     .container {
       height: 100vh;
       display: flex;
@@ -47,25 +68,35 @@
       padding: 20px;
       position: relative;
       text-align: center;
+      z-index: 1; /* above the star field */
     }
 
-    /* (Optional) fade-out class if you want to transition screens */
-    .fade-out {
-      opacity: 0;
+    /* The moon - a white circle in the sky */
+    #moon {
+      position: fixed;
+      top: 10%;
+      left: 80%;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #f0f0f0;
+      box-shadow: 0 0 15px #f0f0f0, 0 0 50px #f0f0f0 inset;
+      transition: opacity 2s ease;
+      z-index: 1;
     }
 
-    /* The rising sun */
+    /* The rising sun (initially hidden behind bottom) */
     #sun {
       width: 80px;
       height: 80px;
       background: #ffdd00;
       border-radius: 50%;
       position: fixed;
-      bottom: 0;
+      bottom: -100px; /* start out of view */
       left: 50%;
       transform: translateX(-50%);
       box-shadow: 0 0 40px #ffdd0080;
-      transition: all 35s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 35s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 1;
     }
 
@@ -92,8 +123,8 @@
       color: white;
       font-size: 1.3rem;
       line-height: 1.6;
-      opacity: 1; /* We'll manually manage visibility */
-      min-height: 2.5em; /* Reserve space so page doesn't jump */
+      opacity: 1; 
+      min-height: 2.5em;
     }
 
     /* Floating hearts/flowers (particles) */
@@ -117,24 +148,23 @@
 
     /* Center "Rozpocznij" button with a pulse animation */
     .start-button {
-      padding: 1.2rem 2.5rem;
-      font-size: 1.4rem;
-      border: none;
-      border-radius: 30px;
-      cursor: pointer;
-      position: absolute;
-      left: 50%; top: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 9999;
-      background: #ff6b6b;
-      color: white;
-      box-shadow: 0 5px 15px rgba(255,107,107,0.3);
-      opacity: 0;
-      transition: opacity 2s ease;
+  padding: 1.2rem 2.5rem;
+  font-size: 1.4rem;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  position: fixed;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 99999;
+  background: #ff6b6b;
+  color: white;
+  box-shadow: 0 5px 15px rgba(255,107,107,0.3);
+  opacity: 1; /* Force visible immediately */
+  transition: opacity 2s ease;
+  animation: pulse 2.5s infinite;
+}
 
-      /* Gentle pulse animation */
-      animation: pulse 2.5s infinite;
-    }
     @keyframes pulse {
       0%   { transform: translate(-50%, -50%) scale(1); }
       50%  { transform: translate(-50%, -50%) scale(1.05); }
@@ -187,6 +217,11 @@
       80% { transform: translateX(3px); }
       100% { transform: translateX(0); }
     }
+
+    /* Optional fade-out class for final transitions */
+    .fade-out {
+      opacity: 0;
+    }
   </style>
 </head>
 
@@ -196,6 +231,12 @@
 
   <div class="container">
     <button class="start-button" id="startButton">Rozpocznij Naszą Historię 🌻</button>
+
+    <!-- The moon (visible at night) -->
+    <div id="moon"></div>
+    <!-- The sun (hidden at bottom until we animate it) -->
+    <div id="sun"></div>
+
     <div class="message" id="message">
       <h2>Każdy dzień z Tobą to nowy powód do szczęścia...</h2>
       <p>Patrz jak nasza miłość rozkwita razem ze wschodem słońca</p>
@@ -231,7 +272,7 @@
       "I zrozumiałem, że najlepszym początkiem jesteś Ty",
       "Twój uśmiech rozświetla mój świat bardziej niż słońce",
       "Dziękuję za bycie moim światłem...",
-       "     ...i ogniem który mnie rozpala 🔥",
+      "     ...i ogniem który mnie rozpala 🔥",
       "Cieszę się, że mogę być częścią Twojego życia i dzielić z Tobą te małe, codzienne chwile.",
       "Dziękuję, że jesteś taka, jaka jesteś – wyjątkowa, pełna ciepła i uśmiechu.",
       "Dziś chcę Ci przypomnieć: jesteś moim największym marzeniem i najpiękniejszą rzeczywistością",
@@ -273,8 +314,8 @@
               textElement.style.opacity = '1';
               lineIndex++;
               showNextLine();
-            }, 800); // let the text fade out for ~0.8s
-          }, 1500); // keep line on screen for 2s before fade out
+            }, 800);
+          }, 1500);
         });
       }
 
@@ -291,24 +332,12 @@
       // (Optional) Attempt to play background music
       const music = document.getElementById('bgMusic');
       if (music) {
-        music.play().catch(() => {
-          // iOS might block it if not triggered by direct user interaction,
-          // but "click" on button is usually enough
-        });
+        music.play().catch(() => {});
       }
 
-      // Create the sun element
-      const sun = document.createElement('div');
-      sun.id = 'sun';
-      document.body.appendChild(sun);
-
-      // Start sunrise effect
-      setTimeout(() => {
-        document.body.style.background = "var(--sunrise)";
-        sun.style.transform = "translateY(-120vh)";
-        document.getElementById('message').style.opacity = '1';
-        showRomanticText();
-      }, 50);
+      // Fade out the moon
+      const moon = document.getElementById('moon');
+      moon.style.opacity = '0';
 
       // Start floating hearts/flowers
       createParticles();
@@ -316,15 +345,31 @@
       // Remove the start button
       document.getElementById('startButton').remove();
 
-      // After ~18s, fade out and show final question screen
+      // Fade out the star field
+      document.body.classList.add('stars-fade');
+
+      // Let’s also shift the background from night to sunrise (over 35s)
       setTimeout(() => {
-        // Optional fade-out transition on body
+        document.body.style.background = "var(--sunrise)";
+        // Bring in the sun
+        const sun = document.getElementById('sun');
+        // Move sun from bottom to top over 35s
+        sun.style.transform = "translate(-50%, -120vh)";
+        
+        // Show intro message fade
+        document.getElementById('message').style.opacity = '1';
+        // Start typed text
+        showRomanticText();
+      }, 50);
+
+      // After ~37s, fade out and show final question screen
+      setTimeout(() => {
         document.body.classList.add('fade-out');
         setTimeout(() => {
           showFinalQuestion();
           document.body.classList.remove('fade-out');
-        }, 700); // wait ~0.7s for fade
-      }, 38000);
+        }, 700);
+      }, 37000);
     }
 
     /*******************************************************
