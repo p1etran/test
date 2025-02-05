@@ -258,7 +258,7 @@
         if (lineIndex >= romanticLines.length) return;
 
         // Type the line
-        typeText(textElement, romanticLines[lineIndex], 40, () => {
+        typeText(textElement, romanticLines[lineIndex], 30, () => {
           // Pause, then fade out text, then next line
           setTimeout(() => {
             textElement.style.opacity = '0';
@@ -267,8 +267,8 @@
               textElement.style.opacity = '1';
               lineIndex++;
               showNextLine();
-            }, 800); // let the text fade out for ~0.8s
-          }, 2000); // keep line on screen for 2s before fade out
+            }, 500); // let the text fade out for ~0.8s
+          }, 1000); // keep line on screen for 2s before fade out
         });
       }
 
@@ -318,7 +318,7 @@
           showFinalQuestion();
           document.body.classList.remove('fade-out');
         }, 700); // wait ~0.7s for fade
-      }, 25000);
+      }, 27000);
     }
 
     /*******************************************************
